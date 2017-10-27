@@ -6,4 +6,3 @@ function print_to_svg_to_pdf(figname, path_manage)
    system(['pdfcrop ' figname '.pdf ' figname '.pdf']);
    cd(path_manage);
 end
-
