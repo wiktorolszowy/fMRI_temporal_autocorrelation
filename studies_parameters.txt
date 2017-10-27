@@ -1,0 +1,15 @@
+study;                            TR;        npts;  totalVoxels;   n;    abbr;  task
+BMMR_checkerboard;                3;         80;    91728000;      21;   BMM;   checkerboard
+CRIC_checkerboard;                2.008032;  160;   20971520;      70;   CRC;   checkerboard
+CRIC_navigation;                  2.008032;  150;   19660800;      81;   CRN;   navigation
+CRIC_RS;                          2.008032;  300;   39321600;      73;   CRR;   rest
+CRIC_tennis;                      2.008032;  150;   19660800;      78;   CRT;   tennis
+FCP_Beijing;                      2;         225;   30412800;      198;  FCB;   rest
+FCP_Cambridge;                    3;         119;   28994112;      198;  FCC;   rest
+NKI_release_3_breathhold_1400;    1.4;       186;   149323776;     30;   NBR;   breathhold
+NKI_release_3_checkerboard_645;   0.645;     240;   52569600;      30;   NCS;   checkerboard
+NKI_release_3_checkerboard_1400;  1.4;       98;    78675968;      30;   NCL;   checkerboard
+NKI_release_3_RS_645;             0.645;     900;   197136000;     30;   NRS;   rest
+NKI_release_3_RS_1400;            1.4;       404;   324337664;     30;   NRL;   rest
+NKI_release_3_RS_CAP;             2.5;       120;   23639040;      30;   NRC;   rest
+simulated_using_neuRosim;         2;         225;   30412800;      100;  SIM;   rest

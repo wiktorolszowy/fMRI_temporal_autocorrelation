@@ -1,0 +1,21 @@
+#!/bin/bash
+#!
+#! Wiktor Olszowy
+#!
+#! Submit array of jobs/tasks with:
+#! sbatch --array=n1-n2 slurm_submit.array.hphi
+
+#SBATCH -J jobarray              # a single job name for the array
+#SBATCH -p wbic                  # partition
+#SBATCH -n 1                     # one core
+#SBATCH -N 1                     # on one node
+#SBATCH -t 150:00:00             # running time
+#SBATCH --mem-per-cpu 0          # memory per core
+#SBATCH --qos=long.q             # quality of service: short
+#SBATCH -o out_err/%A_%a.out     # standard output
+#SBATCH -e out_err/%A_%a.err     # standard error
+
+# Make output directories
+# cd job_array_${SLURM_ARRAY_TASK_ID}_out
+
+bash parallel_commands/command_${part}_${SLURM_ARRAY_TASK_ID}.sh > out_err/${part}_${SLURM_ARRAY_TASK_ID}.output
