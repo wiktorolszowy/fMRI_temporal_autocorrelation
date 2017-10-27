@@ -41,7 +41,7 @@ parfor study_id = 1:length(studies)
                system(['mkdir exper_design_', exper_design]);
                path_output_freq_smoothing_exper_design = [path_output_freq_smoothing '/exper_design_' exper_design];
                cd(path_output_freq_smoothing_exper_design);
-			   %-make a folder to save the FSL 'preproc' designs and a folder to save the FSL 'preproc' analyses
+	       %-make a folder to save the FSL 'preproc' designs and a folder to save the FSL 'preproc' analyses
                if strcmp(software, 'FSL')
                   system('mkdir preproc_feats_designs');
                   system('mkdir preproc_feats');
