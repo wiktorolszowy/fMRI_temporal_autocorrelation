@@ -5,6 +5,38 @@
 | Purpose:    | Study "fMRI results strongly depend on the assumed experimental design"       |
 | Contact:    | wo222@cam.ac.uk                                                               |
 
+Repeat the analyses
+==============
+
+To repeat some/all of the analyses presented in the paper, or perform such analyses for other data/different options, the paths ('path_manage.txt' and 'path_scratch.txt') and the table 'studies_parameters.txt' have to be adjusted, the fMRI scans have to be downloaded and renamed following a BIDS influenced standard:
+```
+'sub-' + string(3-letter-dataset-abbr) + string(4-digit id going from 1 to the number of subjects in that dataset) + '_' + string(task) + '_bold.nii'
+```
+The dataset abbreviation and the task name can be taken from the table 'studies_parameters.txt'.
+For example for dataset 'FCP_Beijing' the dataset abbreviation is 'FCB' and the task is resting state ('rest'), so the first scan should be called:
+```
+sub-FCB0001_rest_bold.nii
+```
+while the accompanying T1 weighted ('T1w') anatomical scan and the brain extracted 'T1w' scan should be called:
+```
+sub-FCB0001_T1w.nii
+sub-FCB0001_T1w_brain.nii
+```
+Although the names of the scans follow the BIDS standard, the 'bold', 'T1w' and 'T1w_brain' scans for each study are in one folder together: 'scans_FCP_Beijing' for the example above.
+
+FCP and NKI datasets are available to everyone after registration on the NITRC platform. BMMR and CRIC scans have not been made public yet.
+The simulated scans can be made using the attached script 'simulate_4D.R'.
+
+The order in which the scripts should be run:
+```
+matlab -r -nodesktop "run('make_folders.m'); exit"
+R -e "source('make_experimental_designs.R')"
+R -e "source('make_parallel_commands.R')"
+bash sequential_sbatches.sh
+matlab -r -nodesktop "run('make_combined_results_from_single_runs.m'); exit"
+matlab -r -nodesktop "run('make_figures.m'); exit"
+```
+
 Software
 ==============
 
@@ -78,10 +110,6 @@ Repository contents
    - `print_to_svg_to_pdf.m`
    
      Function to print a MATLAB figure to '.svg' and then to '.pdf', cropping the 'pdf' (removing margins) and deleting the '.svg' file at the end.
-- `out_err`
-
-  Folder where output and errors from running 'sbatch' are saved.
-   - ...
 - `parallel_commands`
 
   Folder where the commands run later using the 'job array' option in 'sbatch' are kept. Each command refers to one subject and to an analysis in AFNI, FSL or SPM. There are different commands for different high-pass filter approaches.
@@ -137,40 +165,3 @@ Repository contents
 - `studies_parameters.txt`
 
   Table with an overview of the 11 datasets employed. Parameters from this table are later read by AFNI/FSL/SPM.
-
-Repeat the analyses
-==============
-
-To repeat some/all of the analyses presented in the paper, or perform such analyses for other data/different options, the paths ('path_manage.txt' and 'path_scratch.txt') and the table 'studies_parameters.txt' have to be adjusted, the fMRI scans have to be downloaded and renamed following a BIDS influenced standard:
-```
-'sub-' + string(3-letter-dataset-abbr) + string(4-digit id going from 1 to the number of subjects in that dataset) + '_' + string(task) + '_bold.nii'
-```
-The dataset abbreviation and the task name can be taken from the table 'studies_parameters.txt'.
-For example for dataset 'FCP_Beijing' the dataset abbreviation is 'FCB' and the task is resting state ('rest'), so the first scan should be called:
-```
-sub-FCB0001_rest_bold.nii
-```
-while the accompanying T1 weighted ('T1w') anatomical scan and the brain extracted 'T1w' scan should be called:
-```
-sub-FCB0001_T1w.nii
-sub-FCB0001_T1w_brain.nii
-```
-Although the names of the scans follow the BIDS standard, the 'bold', 'T1w' and 'T1w_brain' scans for each study are in one folder together: 'scans_FCP_Beijing' for the example above.
-
-FCP and NKI datasets are available to everyone after registration on the NITRC platform. BMMR and CRIC scans have not been made public yet.
-The simulated scans can be made using the attached script 'simulate_4D.R'.
-
-The order in which the scripts should be run:
-```
-matlab -r -nodesktop "run('make_folders.m'); exit"
-R -e "source('make_experimental_designs.R')"
-R -e "source('make_parallel_commands.R')"
-bash sequential_sbatches.sh
-matlab -r -nodesktop "run('make_combined_results_from_single_runs.m'); exit"
-matlab -r -nodesktop "run('make_figures.m'); exit"
-```
-
-Contact
-==============
-
-In case of any suggestions or questions, please write to wo222@cam.ac.uk
