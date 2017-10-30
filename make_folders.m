@@ -34,13 +34,13 @@ parfor study_id = 1:length(studies)
             cd(path_output_freq);
             system(['mkdir smoothing_' num2str(smoothing)]);
             path_output_freq_smoothing = [path_output_freq '/smoothing_' num2str(smoothing)];
-            %-make a folder to save the FSL 'preproc' designs and a folder to save the FSL 'preproc' analyses
             for exper_design_id = 1:length(exper_designs)
                exper_design = exper_designs{exper_design_id};
                cd(path_output_freq_smoothing)
                system(['mkdir exper_design_', exper_design]);
                path_output_freq_smoothing_exper_design = [path_output_freq_smoothing '/exper_design_' exper_design];
                cd(path_output_freq_smoothing_exper_design);
+               %-make a folder to save the FSL 'preproc' designs and a folder to save the FSL 'preproc' analyses
                if strcmp(software, 'FSL')
                   system('mkdir preproc_feats_designs');
                   system('mkdir preproc_feats');
