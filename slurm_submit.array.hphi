@@ -18,4 +18,6 @@
 # Make output directories
 # cd job_array_${SLURM_ARRAY_TASK_ID}_out
 
+module load AFNI
+
 bash parallel_commands/command_${part}_${SLURM_ARRAY_TASK_ID}.sh > out_err/${part}_${SLURM_ARRAY_TASK_ID}.output
