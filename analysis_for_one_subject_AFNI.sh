@@ -71,7 +71,7 @@ for ((smoothing_id=0; smoothing_id<${#smoothings[@]}; smoothing_id++)) {
             -gltsym 'SYM: activation_stimulus'                                    \
             -glt_label 1 activity                                                 \
          -regress_make_ideal_sum sum_ideal.1D                                     \
-         -regress_run_clustsim no 	                                              \
+         -regress_run_clustsim no                                                 \
          -regress_est_blur_epits                                                  \
          -regress_est_blur_errts                                                  \
          -regress_reml_exec                                                       \

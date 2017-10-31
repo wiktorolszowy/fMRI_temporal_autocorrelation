@@ -6,6 +6,7 @@
 library(neuRosim)
 library(oro.nifti)
 library(parallel)
+library(AnalyzeFMRI)
 
 setwd("/home/wo222/others/neuRosim")
 
@@ -29,8 +30,6 @@ res = mclapply(1:100, function(sub_id) {
    system(paste0("cp Beijing_sub98617_T1_brain.nii sub-", abbr, sub_id_4digit, "_T1w_brain.nii"))
 }, mc.cores=24)
 
-
-library(AnalyzeFMRI)
 A = f.read.nifti.volume("Beijing_sub98617.nii")
 A = f.read.nifti.volume("sub-SIM0001_rest_bold.nii")
 dim(A)
