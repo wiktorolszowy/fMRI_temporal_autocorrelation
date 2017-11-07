@@ -126,9 +126,6 @@ Repository contents
 - `analysis_for_one_subject_SPM.m`
 
   MATLAB script for SPM, run for one subject and one high-pass filter approach, but for different smoothings and experimental_designs.
-- `analysis_output_folder_image.tar.gz`
-
-  Compressed copy of the entire analysis output folder. Only attributes of the files were copied. The files have names, but are empty. The uncompressed folder is large and the extraction takes a lot of time.
 - `make_combined_results_from_single_runs.m`
 
   MATLAB script that makes arrays that are kept in the folder 'combined_results'.
