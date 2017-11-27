@@ -8,5 +8,4 @@ NKI_release_3_checkerboard_645;   0.645;     240;   52569600;      30;   NCS;   
 BMMR_checkerboard;                3;         80;    91728000;      21;   BMM;   checkerboard
 CRIC_RS;                          2.008032;  300;   39321600;      73;   CRR;   rest
 CRIC_checkerboard;                2.008032;  160;   20971520;      70;   CRC;   checkerboard
-CRIC_tennis;                      2.008032;  150;   19660800;      78;   CRT;   tennis
 simulated_using_neuRosim;         2;         225;   30412800;      100;  SIM;   rest

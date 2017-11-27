@@ -4,7 +4,7 @@
 ####   AFNI analysis for 1 fMRI scan, for different combinations of options.
 ####   Written by:    Wiktor Olszowy, University of Cambridge
 ####   Contact:       wo222@cam.ac.uk
-####   Created:       February-October 2017
+####   Created:       February-November 2017
 ####   Adapted from:  https://github.com/wanderine/ParametricMultisubjectfMRI/tree/master/AFNI
 ###############################################################################################
 
@@ -54,6 +54,7 @@ for ((smoothing_id=0; smoothing_id<${#smoothings[@]}; smoothing_id++)) {
       echo $study $subject $smoothing $exper_design $HRF_model
       cd ${path_output}/smoothing_${smoothing}/exper_design_${exper_design}/HRF_${HRF_model}
       
+      #-read https://afni.nimh.nih.gov/afni/community/board/read.php?1,156558,156558#msg-156558
       afni_proc.py                                                                \
          -subj_id $subject                                                        \
          -script proc.$subject -scr_overwrite                                     \
@@ -66,10 +67,6 @@ for ((smoothing_id=0; smoothing_id<${#smoothings[@]}; smoothing_id++)) {
             ${path_manage}/experimental_designs/AFNI_${study}_${exper_design}.txt \
          -regress_stim_labels activation_stimulus                                 \
          -regress_basis ${HRF}                                                    \
-         -regress_opts_3dD                                                        \
-            -jobs 1                                                               \
-            -gltsym 'SYM: activation_stimulus'                                    \
-            -glt_label 1 activity                                                 \
          -regress_make_ideal_sum sum_ideal.1D                                     \
          -regress_run_clustsim no                                                 \
          -regress_est_blur_epits                                                  \
