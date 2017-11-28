@@ -115,7 +115,7 @@ Repository contents
   Folder where the commands run later using the 'job array' option in 'sbatch' are kept. Each command refers to one subject and to an analysis in AFNI, FSL or SPM. There are different commands for different high-pass filter approaches.
    - `command_1_1.sh`
    
-     Run AFNI analysis for 1st subject from 1st study. The first '1' does not refer to the first study. It refers to the first group of commands (second group is for FSL...). The second index goes through all the subjects in all the studies: 1...858.
+     Run AFNI analysis for 1st subject from 1st study. The first '1' does not refer to the first study. It refers to the first group of commands (second group is for FSL...). The second index goes through all the subjects in all the studies: 1...780.
    - ...
 - `analysis_for_one_subject_AFNI.sh`
 
@@ -152,7 +152,7 @@ Repository contents
   R script transforming the statistic maps for AFNI/FSL/SPM to MNI space and doing multiple testing via FSL.
 - `sequential_sbatches.sh`
 
-  Bash script that runs analyses in AFNI/FSL/SPM for all the 11 studies and 858 subjects, for different combinations of options, designed to run on an HPC cluster.
+  Bash script that runs analyses in AFNI/FSL/SPM for all the 10 datasets and 780 subjects, for different combinations of options, designed to run on an HPC cluster.
 - `simulate_4D.R`
 
   R script that makes 4-dimensional resting state fMRI data, used as last dataset in the analyses/paper.
@@ -161,4 +161,4 @@ Repository contents
   Options for 'sbatch'.
 - `studies_parameters.txt`
 
-  Table with an overview of the 11 datasets employed. Parameters from this table are later read by AFNI/FSL/SPM.
+  Table with an overview of the 10 datasets employed. Parameters from this table are later read by AFNI/FSL/SPM.
