@@ -1,7 +1,7 @@
 
 | Written by: | Wiktor Olszowy, Department of Clinical Neurosciences, University of Cambridge |
 | ----------- | ----------------------------------------------------------------------------- |
-| When:       | September 2016 - October 2017                                                 |
+| When:       | September 2016 - November 2017                                                |
 | Purpose:    | Study "Autocorrelation bias still exists in fMRI results"                     |
 | Contact:    | wo222@cam.ac.uk                                                               |
 
