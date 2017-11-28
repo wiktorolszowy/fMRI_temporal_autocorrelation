@@ -2,7 +2,7 @@
 | Written by: | Wiktor Olszowy, Department of Clinical Neurosciences, University of Cambridge |
 | ----------- | ----------------------------------------------------------------------------- |
 | When:       | September 2016 - October 2017                                                 |
-| Purpose:    | Study "fMRI results strongly depend on the assumed experimental design"       |
+| Purpose:    | Study "Autocorrelation bias still exists in fMRI results"                     |
 | Contact:    | wo222@cam.ac.uk                                                               |
 
 Repeat the analyses
