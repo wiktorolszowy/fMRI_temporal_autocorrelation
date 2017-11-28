@@ -3,6 +3,7 @@
 | ----------- | ----------------------------------------------------------------------------- |
 | When:       | September 2016 - November 2017                                                |
 | Purpose:    | Study "Autocorrelation bias still exists in fMRI results"                     |
+| Preprint:   | https://arxiv.org/pdf/1711.09877.pdf                                          |
 | Contact:    | wo222@cam.ac.uk                                                               |
 
 Repeat the analyses
