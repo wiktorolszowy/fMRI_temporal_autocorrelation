@@ -25,7 +25,7 @@ parfor study_id = 1:length(studies)
       system(['mkdir ' software]);
       path_output = [path_scratch '/analysis_output_' study '/' software];
       cd(path_output);
-      for freq_cutoff_id = 1:2
+      for freq_cutoff_id = 2:2
          freq_cutoff = freq_cutoffs{freq_cutoff_id};
          system(['mkdir freq_cutoffs_' freq_cutoff]);
          for smoothing_id = 1:length(smoothings)

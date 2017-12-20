@@ -4,7 +4,7 @@
 ####   AFNI analysis for 1 fMRI scan, for different combinations of options.
 ####   Written by:    Wiktor Olszowy, University of Cambridge
 ####   Contact:       wo222@cam.ac.uk
-####   Created:       February-November 2017
+####   Created:       February-December 2017
 ####   Adapted from:  https://github.com/wanderine/ParametricMultisubjectfMRI/tree/master/AFNI
 ###############################################################################################
 
@@ -61,6 +61,8 @@ for ((smoothing_id=0; smoothing_id<${#smoothings[@]}; smoothing_id++)) {
          -tcat_remove_first_trs 0                                                 \
          -dsets ${path_data}/${subject}_${task}_bold.nii                          \
          -volreg_align_to third                                                   \
+         -regress_polort 2                                                        \
+         -regress_bandpass 0.01 10                                                \
          -blur_size ${smoothing}.${zero_aux}                                      \
          -regress_stim_types AM1                                                  \
          -regress_stim_times                                                      \

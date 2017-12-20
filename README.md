@@ -1,10 +1,10 @@
 
-| Written by: | Wiktor Olszowy, Department of Clinical Neurosciences, University of Cambridge |
-| ----------- | ----------------------------------------------------------------------------- |
-| When:       | September 2016 - November 2017                                                |
-| Purpose:    | Study "Autocorrelation bias still exists in fMRI results"                     |
-| Preprint:   | https://arxiv.org/pdf/1711.09877.pdf                                          |
-| Contact:    | wo222@cam.ac.uk                                                               |
+| Written by: | Wiktor Olszowy, Department of Clinical Neurosciences, University of Cambridge     |
+| ----------- | --------------------------------------------------------------------------------- |
+| When:       | September 2016 - December 2017                                                    |
+| Purpose:    | Study "Accurate autocorrelation modeling substantially improves fMRI reliability" |
+| Preprint:   | https://arxiv.org/pdf/1711.09877.pdf                                              |
+| Contact:    | wo222@cam.ac.uk                                                                   |
 
 Repeat the analyses
 ==============
@@ -41,7 +41,7 @@ matlab -r -nodesktop "run('make_figures.m'); exit"
 Software
 ==============
 
-I used the following softwares:
+I used the following software:
 
 - Debian 3.16.43
 - AFNI 16.2.02
@@ -72,13 +72,19 @@ Repository contents
   Folder where MATLAB arrays are kept with results.
    - `combined.mat`
    
-     For each subject for each study and for each combination of options the number of significant voxels is given.
+     For each subject, for each study and for each combination of options the number of significant voxels is given.
+   - `combined_fraction.mat`
+   
+     For each subject, for each study and for each combination of options the percentage of significant voxels is given.
+   - `pos_fractions.mat`
+   
+     'combined_fraction.mat' computed across subjects for each study and for each combination of options: the average percentage of significant (positive) voxels.
    - `pos_mean_numbers.mat`
    
-     'combined.mat' computed across subjects for each study and for each combination of options: the mean number of significant (~positive) voxels.
+     'combined.mat' computed across subjects for each study and for each combination of options: the mean number of significant (positive) voxels.
    - `pos_rates.mat`
    
-     'combined.mat' computed across subjects for each study and for each combination of options: the proportion of subjects with at least 1 significant (~positive) voxel.
+     'combined.mat' computed across subjects for each study and for each combination of options: the proportion of subjects with at least 1 significant (positive) voxel.
 - `experimental_designs`
 
   Folder where experimental designs are kept, for AFNI and FSL, for each study and for each design. For SPM the experimental designs can be easily embedded in the SPM commands.
@@ -108,6 +114,9 @@ Repository contents
    - `max_extent.m`
    
      Thomas Nichols' functions used for the PNAS 2016 Eklund et al. study, needed for cluster inference in SPM. However, our paper shows results with multiple testing done in FSL, also for analyses started in AFNI and SPM.
+   - `parsave.m`
+   
+     Auxiliary function to save within parfor.
    - `print_to_svg_to_pdf.m`
    
      Function to print a MATLAB figure to '.svg' and then to '.pdf', cropping the 'pdf' (removing margins) and deleting the '.svg' file at the end.
@@ -142,6 +151,9 @@ Repository contents
 - `make_parallel_commands.R`
 
   R script that makes commands that are later run using the 'job array' option in 'sbatch', which is the 'slurm' tool for running jobs on an HPC cluster. The commands are saved in 'parallel_commands'.
+- `make_power_spectra.m`
+
+  MATLAB script that computes the power spectra on the GLM residuals from AFNI, FSL and SPM.
 - `path_manage.txt`
 
   Path specifying where the scripts/above mentioned folders are.

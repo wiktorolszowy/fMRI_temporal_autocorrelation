@@ -4,7 +4,7 @@
 %%%%   Combining results from single runs to mat files. Necessary for making figures.
 %%%%   Written by:  Wiktor Olszowy, University of Cambridge
 %%%%   Contact:     wo222@cam.ac.uk
-%%%%   Created:     July-October 2017
+%%%%   Created:     July-December 2017
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -19,11 +19,13 @@ smoothings          = [0 4 5 8];
 exper_designs       = cellstr(['boxcar10'; 'boxcar12'; 'boxcar14'; 'boxcar16'; 'boxcar18'; 'boxcar20'; 'boxcar22'; 'boxcar24'; 'boxcar26'; 'boxcar28'; 'boxcar30'; 'boxcar32'; 'boxcar34'; 'boxcar36'; 'boxcar38'; 'boxcar40']);
 p                   = parpool(24);
 combined            = (-1)*ones(length(softwares), length(freq_cutoffs), length(studies), 198, length(smoothings), length(exper_designs));
+combined_fraction   = (-1)*ones(length(softwares), length(freq_cutoffs), length(studies), 198, length(smoothings), length(exper_designs));
 dims                = size(combined);
 pos_rates           = NaN(dims([1 2 3 5 6]));
 pos_mean_numbers    = NaN(dims([1 2 3 5 6]));
+pos_fractions       = NaN(dims([1 2 3 5 6]));
 range_softwares     = 1:length(softwares);
-range_freq_cutoffs  = 1:length(freq_cutoffs);
+range_freq_cutoffs  = 2;
 range_studies       = 1:length(studies);
 range_exper_designs = 1:length(exper_designs);
 range_smoothings    = 1:length(smoothings);
@@ -51,7 +53,8 @@ for software_id = range_softwares
          cd(path_manage);
          parfor subject_id = 1:no_subjects
             subject = ['sub-' abbr repmat('0', 1, 4-length(num2str(subject_id))) num2str(subject_id)];
-            combined_parfor = (-1)*ones(length(smoothings), length(exper_designs));
+            combined_parfor          = (-1)*ones(length(smoothings), length(exper_designs));
+            combined_fraction_parfor = (-1)*ones(length(smoothings), length(exper_designs));
             %-suppressing warnings about changes to variable names within the tables
             warning('off', 'MATLAB:table:ModifiedVarnames');
             for smoothing_id = range_smoothings
@@ -60,19 +63,26 @@ for software_id = range_softwares
                   exper_design = exper_designs{exper_design_id};
                   cd([path_output study '/' software '/freq_cutoffs_' freq_cutoff '/smoothing_' num2str(smoothing) '/exper_design_' exper_design '/HRF_' HRF_model]);
                   if exist(subject, 'dir') == 7
-                     cd(subject);
+                     cd([subject '/standardized_stats']);
                   else
                      disp([pwd ' ' subject]);
                   end
-                  if exist('standardized_stats/pos_mask_MNI.mat', 'file') == 2
-                     data = load('standardized_stats/pos_mask_MNI.mat');
-                     combined_parfor(smoothing_id, exper_design_id) = sum(reshape(data.pos_mask_MNI, 1, []) > 0.5);
+                  if exist('pos_mask_MNI.mat', 'file') == 2
+                     data = load('pos_mask_MNI.mat');
+                     no_sig = sum(reshape(data.pos_mask_MNI, 1, []) > 0.5);
+                     combined_parfor(smoothing_id, exper_design_id) = no_sig;
+                     system('gunzip zstat1_FSL_SPM_masked_MNI.nii.gz');
+                     zstat1_masked_MNI = MRIread('zstat1_FSL_SPM_masked_MNI.nii');
+                     zstat1_masked_MNI = zstat1_masked_MNI.vol;
+                     voxels_total = sum(reshape(zstat1_masked_MNI, 1, []) ~= 0);
+                     combined_fraction_parfor(smoothing_id, exper_design_id) = no_sig/voxels_total;
                   else
                      disp(pwd);
                   end
                end
             end
-            combined(software_id, freq_cutoff_id, study_id, subject_id, :, :) = combined_parfor;
+            combined(software_id, freq_cutoff_id, study_id, subject_id, :, :)          = combined_parfor;
+            combined_fraction(software_id, freq_cutoff_id, study_id, subject_id, :, :) = combined_fraction_parfor;
          end
       end
    end
@@ -83,12 +93,14 @@ for i1 = 1:dims(1)
       for i3 = 1:dims(3)
          for i5 = 1:dims(5)
             for i6 = 1:dims(6)
-               over_sub = combined(i1, i2, i3, :, i5, i6);
+               over_sub           = combined         (i1, i2, i3, :, i5, i6);
+               over_sub_fractions = combined_fraction(i1, i2, i3, :, i5, i6);
                %-(-0.5) chosen for numerical reasons; in fact, we only want to distinguish >=0 from <0
                if sum(over_sub>-0.5) > 0
                   pos_rates       (i1, i2, i3,    i5, i6) =  sum(over_sub>0)/sum(over_sub>-0.5);
                   %-sum(over_sub<-0.5) considered, as that many times the default (-1) is subtracted; (-1) appears in 'combined' for non-subjects
-                  pos_mean_numbers(i1, i2, i3,    i5, i6) = (sum(over_sub) + sum(over_sub<-0.5)) / sum(over_sub>-0.5);
+                  pos_mean_numbers(i1, i2, i3,    i5, i6) = (sum(over_sub)           + sum(over_sub<-0.5)) / sum(over_sub>-0.5);
+                  pos_fractions   (i1, i2, i3,    i5, i6) = (sum(over_sub_fractions) + sum(over_sub<-0.5)) / sum(over_sub>-0.5);
                end
             end
          end
@@ -97,6 +109,8 @@ for i1 = 1:dims(1)
 end
 
 cd(path_manage);
-save('combined_results/combined',         'combined');
-save('combined_results/pos_rates',        'pos_rates');
-save('combined_results/pos_mean_numbers', 'pos_mean_numbers');
+save('combined_results/combined',          'combined');
+save('combined_results/combined_fraction', 'combined_fraction');
+save('combined_results/pos_rates',         'pos_rates');
+save('combined_results/pos_mean_numbers',  'pos_mean_numbers');
+save('combined_results/pos_fractions',     'pos_fractions');

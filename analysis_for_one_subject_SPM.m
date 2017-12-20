@@ -4,7 +4,7 @@
 %%%%   SPM analysis for 1 fMRI scan, for different combinations of options.
 %%%%   Written by:    Wiktor Olszowy, University of Cambridge
 %%%%   Contact:       wo222@cam.ac.uk
-%%%%   Created:       February-October 2017
+%%%%   Created:       February-December 2017
 %%%%   Adapted from:  https://github.com/wanderine/ParametricMultisubjectfMRI/tree/master/SPM
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -14,6 +14,7 @@ path_scratch       = fgetl(fopen('path_scratch.txt'));
 studies_parameters = readtable([path_manage '/studies_parameters.txt']);
 smoothings         = [0 4 5 8];
 freq_cutoffs       = cellstr(['different'; 'same     ']);
+freq_cutoff        = 'same';
 exper_designs      = cellstr(['boxcar10'; 'boxcar12'; 'boxcar14'; 'boxcar16'; 'boxcar18'; 'boxcar20'; 'boxcar22'; 'boxcar24'; 'boxcar26'; 'boxcar28'; 'boxcar30'; 'boxcar32'; 'boxcar34'; 'boxcar36'; 'boxcar38'; 'boxcar40']);
 HRF_model          = 'gamma2_D';
 voxel_size         = 2;
@@ -23,7 +24,6 @@ abbr               = studies_parameters.abbr{study_id};
 task               = studies_parameters.task{study_id};
 subject            = ['sub-' abbr repmat('0', 1, 4-length(num2str(subject_id))) num2str(subject_id)];
 bold_file          = [subject '_' task '_bold'];
-freq_cutoff        = freq_cutoffs{freq_cutoff_id};
 TR                 = studies_parameters.TR(study_id);      %-the repetition time
 npts               = studies_parameters.npts(study_id);    %-the number of time points
 path_data          = [path_scratch '/scans_' study];
@@ -44,7 +44,8 @@ for exper_design_id = 1:length(exper_designs)
       clear jobs;
       
       if strcmp(freq_cutoff, 'same')
-         spm_get_defaults('stats.fmri.hpf', 128);
+         %-default in SPM is 128, but in FSL it is 100
+         spm_get_defaults('stats.fmri.hpf', 100);
       else
          %-SPM sometimes removes the signal at the cutoff frequency too (opposed to FSL), that's why +10
          spm_get_defaults('stats.fmri.hpf', 10+2*str2double(exper_design(7:8)));
@@ -200,6 +201,8 @@ for exper_design_id = 1:length(exper_designs)
          jobs{1}.stats{1}.results.conspec.extent     = 0;
          jobs{1}.stats{1}.results.print              = true;
          spm_jobman('run', jobs);
+
+         VRes = spm_write_residuals(SPM,NaN);
          
       end
    end

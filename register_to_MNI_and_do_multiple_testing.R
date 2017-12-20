@@ -4,7 +4,7 @@
 ####   Registering results to MNI space and doing FSL multiple testing. For AFNI, FSL and SPM.
 ####   Written by:    Wiktor Olszowy, University of Cambridge
 ####   Contact:       wo222@cam.ac.uk
-####   Created:       October 2017
+####   Created:       October-December 2017
 ###############################################################################################
 
 
@@ -47,7 +47,17 @@ for (software in softwares) {
             system("mkdir standardized_stats")
             #-checking what are the degrees of freedom (df) of the t-statistic map
             #-https://afni.nimh.nih.gov/afni/community/board/read.php?1,67177,67179#msg-67179
-            system(paste0("3dinfo stats.", subject, "_REML+orig[2] > standardized_stats/3dinfo_output.txt"))
+            #-ifs used to catch numerical problems with AFNI for 4 subjects in the "NKI RS TR=1.4s" dataset: ids 2&5 (no 'stats_REML'), 25&27 (no 'stats'):
+            #-in each case (for the four subjects) problems only for one/two combination/s of smoothing and experimental design
+            if (file.exists(paste0("stats.", subject, "_REML+orig.BRIK"))==T) {
+               system(paste0("3dinfo stats.", subject, "_REML+orig[2] > standardized_stats/3dinfo_output.txt"))
+            } else if (file.exists(paste0("stats.", subject, "+orig.BRIK"))==T) {
+               system(paste0("3dinfo stats.", subject, "+orig[2]      > standardized_stats/3dinfo_output.txt"))
+               cat(paste0("possible AFNI ERROR/problem (no 'stats_REML' file) at ", getwd()))
+            } else {
+               cat(paste0("possible AFNI ERROR/problem (no 'stats' file) at ", getwd()))
+               next
+            }
             info_output = readLines("standardized_stats/3dinfo_output.txt")
             #-alternatively: singleString = paste(readLines("foo.txt"), collapse=" ")
             line_20 = info_output[20]
@@ -61,7 +71,12 @@ for (software in softwares) {
             }
             #-transforming the t-statistic map to a z-statistic map
             #-https://afni.nimh.nih.gov/afni/community/board/read.php?1,156394,156428#msg-156428
-            system(paste0("3dcalc -a stats.", subject, "_REML+orig'[2]' -expr 'fitt_t2z(a,", df, ")' -prefix standardized_stats/zstat1.nii"))
+            if (file.exists(paste0("stats.", subject, "_REML+orig.BRIK"))==T) {
+               system(paste0("3dcalc -a stats.", subject, "_REML+orig'[2]' -expr 'fitt_t2z(a,", df, ")' -prefix standardized_stats/zstat1.nii"))
+            } else {
+               system(paste0("3dcalc -a stats.", subject, "+orig'[2]'      -expr 'fitt_t2z(a,", df, ")' -prefix standardized_stats/zstat1.nii"))
+               cat(paste0("possible AFNI ERROR at ", getwd()))
+            }
             #-applying FSL and SPM masks to non-masked 'zstat1', so that for all softwares the same brain mask used (one confounder less...)
             path_to_FSL = str_replace_all(path, "AFNI", "FSL")
             path_to_SPM = str_replace_all(path, "AFNI", "SPM")

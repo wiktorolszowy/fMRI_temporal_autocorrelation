@@ -26,29 +26,26 @@ part   = part+1
 for (i in 1:length(subject_nos)) {
    for (j in 1:subject_nos[i]) {
       id = id + 1
-      cat("R -e  'study_id=", i, "; subject_id=", j, "; freq_cutoff_id=1; source(\"analysis_for_one_subject_FSL.R\")' \n", file=paste0("parallel_commands/command_", part,   "_", id, ".sh"), sep="", append=F)
-      cat("R -e  'study_id=", i, "; subject_id=", j, "; freq_cutoff_id=2; source(\"analysis_for_one_subject_FSL.R\")' \n", file=paste0("parallel_commands/command_", part+1, "_", id, ".sh"), sep="", append=F)
+      cat("R -e  'study_id=", i, "; subject_id=", j, "; freq_cutoff_id=2; source(\"analysis_for_one_subject_FSL.R\")' \n", file=paste0("parallel_commands/command_", part,   "_", id, ".sh"), sep="", append=F)
    }
 }
 
 #-SPM
 id   = 0
-part = part+2
+part = part+1
 for (i in 1:length(subject_nos)) {
    for (j in 1:subject_nos[i]) {
       id = id + 1
       cat("matlab -r -nodesktop \"study_id=", i, "; subject_id=", j, "; freq_cutoff_id=1; run('analysis_for_one_subject_SPM.m'); exit\" \n", file=paste0("parallel_commands/command_", part,   "_", id, ".sh"), sep="", append=F)
-      cat("matlab -r -nodesktop \"study_id=", i, "; subject_id=", j, "; freq_cutoff_id=2; run('analysis_for_one_subject_SPM.m'); exit\" \n", file=paste0("parallel_commands/command_", part+1, "_", id, ".sh"), sep="", append=F)
    }
 }
 
 #-statistic maps to MNI space and conduct multiple testing
 id     = 0
-part   = part+2
+part   = part+1
 for (i in 1:length(subject_nos)) {
    for (j in 1:subject_nos[i]) {
       id = id + 1
-      cat("R -e  'study_id=", i, "; subject_id=", j, "; freq_cutoff_id=1; source(\"register_to_MNI_and_do_multiple_testing.R\")' \n", file=paste0("parallel_commands/command_", part,   "_", id, ".sh"), sep="", append=F)
-      cat("R -e  'study_id=", i, "; subject_id=", j, "; freq_cutoff_id=2; source(\"register_to_MNI_and_do_multiple_testing.R\")' \n", file=paste0("parallel_commands/command_", part+1, "_", id, ".sh"), sep="", append=F)
+      cat("R -e  'study_id=", i, "; subject_id=", j, "; freq_cutoff_id=2; source(\"register_to_MNI_and_do_multiple_testing.R\")' \n", file=paste0("parallel_commands/command_", part,   "_", id, ".sh"), sep="", append=F)
    }
 }
