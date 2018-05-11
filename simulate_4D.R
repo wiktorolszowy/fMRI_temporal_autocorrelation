@@ -1,7 +1,7 @@
 
 #-Wiktor Olszowy
 
-#-simulate 4D fMRI scans similar to FCP_Beijing, which is resting-state data
+#-simulate 4D fMRI scans similar to 'FCP_Beijing', which is resting-state data
 
 library(neuRosim)
 library(oro.nifti)
@@ -15,6 +15,7 @@ baseline       = apply(FCP_Beijing_RS, 1:3, mean)
 abbr           = "SIM"
 
 res = mclapply(1:100, function(sub_id) {
+
    #-the following ordering, taken from manual, is wrong!
    #-weights refer to 6 different noises: "white", "temporal", "spatial", "low-frequency", "physiological", "task-related"
    #-from code:
@@ -26,8 +27,9 @@ res = mclapply(1:100, function(sub_id) {
    sub_id_4digit = substr(sub_id_4digit, nchar(sub_id_4digit)-3, nchar(sub_id_4digit))
    writeNIfTI(nifti(A, datatype=16, pixdim=c(0,3.1,3.1,3.6,2,1,1,1)), paste0("sub-", abbr, sub_id_4digit, "_rest_bold"))
    system(paste0("gunzip sub-", abbr, sub_id_4digit, "_rest_bold.nii.gz"))
-   system(paste0("cp Beijing_sub98617_T1.nii sub-", abbr, sub_id_4digit, "_T1w.nii"))
+   system(paste0("cp Beijing_sub98617_T1.nii sub-",       abbr, sub_id_4digit, "_T1w.nii"))
    system(paste0("cp Beijing_sub98617_T1_brain.nii sub-", abbr, sub_id_4digit, "_T1w_brain.nii"))
+
 }, mc.cores=24)
 
 A = f.read.nifti.volume("Beijing_sub98617.nii")

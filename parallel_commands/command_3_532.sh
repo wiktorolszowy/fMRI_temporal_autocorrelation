@@ -1,1 +1,1 @@
-matlab -r -nodesktop "study_id=7; subject_id=16; freq_cutoff_id=1; run('analysis_for_one_subject_SPM.m'); exit" 
+matlab -r -nodesktop "study_id=6; subject_id=3; run('analysis_for_one_subject_SPM.m'); exit" 

@@ -1,6 +1,4 @@
 
-
-
 function varargout = CorrClusTh(SPM,u,alpha,guess)
 % Find the corrected cluster size threshold for a given alpha
 % function [k,Pc] =CorrClusTh(SPM,u,alpha,guess)

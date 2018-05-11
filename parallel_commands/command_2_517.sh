@@ -1,1 +1,1 @@
-R -e  'study_id=7; subject_id=1; freq_cutoff_id=2; source("analysis_for_one_subject_FSL.R")' 
+R -e  'study_id=5; subject_id=61; source("analysis_for_one_subject_FSL.R")' 

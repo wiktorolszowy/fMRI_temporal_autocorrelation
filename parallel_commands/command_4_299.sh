@@ -1,1 +1,1 @@
-R -e  'study_id=2; subject_id=101; freq_cutoff_id=2; source("register_to_MNI_and_do_multiple_testing.R")' 
+R -e  'study_id=2; subject_id=101; source("multiple_comparison_correction_and_registration_to_MNI.R")' 

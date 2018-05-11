@@ -1,1 +1,1 @@
-export study_id=9; export subject_id=5; bash analysis_for_one_subject_AFNI.sh; 
+export study_id=6; export subject_id=86; bash analysis_for_one_subject_AFNI.sh; 
