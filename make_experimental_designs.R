@@ -7,27 +7,27 @@ system("mkdir experimental_designs")
 setwd(paste0(path_manage, "/experimental_designs"))
 
 exper_design    = function(n, TR, random, off, on, randomOnsets, randomDurations, name) {
-	if (random==F) {
-		onsets    = seq(off,n*TR-on,by=off+on)
-		durations = rep(on, length(onsets))
-	} else {
-		onsets    = round(randomOnsets[which(randomOnsets+10<n*TR)], digits=2)
-		durations = round(randomDurations[1:length(onsets)],         digits=2)
-	}
-	stimulus_times = data.frame(onsets=onsets, durations=durations)
-	FSL_output     = array(NA, dim=c(3,length(onsets)))
-	FSL_output[1,] = onsets
-	FSL_output[2,] = durations
-	FSL_output[3,] = rep(1,length(onsets))
-	write(FSL_output, file=paste0("FSL_", name, ".txt"), ncolumns=3)
-	for (i in 1:length(onsets)) {
-		if (i==1) {
-			AFNI_output = paste0(onsets[i], ":", durations[i])
-		} else {
-			AFNI_output = paste0(AFNI_output, " ", onsets[i], ":", durations[i])
-		}
-	}
-	write(AFNI_output, file=paste0("AFNI_", name, ".txt"), ncolumns=3)
+   if (random==F) {
+      onsets    = seq(off,n*TR-on,by=off+on)
+      durations = rep(on, length(onsets))
+   } else {
+      onsets    = round(randomOnsets[which(randomOnsets+10<n*TR)], digits=2)
+      durations = round(randomDurations[1:length(onsets)],         digits=2)
+   }
+   stimulus_times = data.frame(onsets=onsets, durations=durations)
+   FSL_output     = array(NA, dim=c(3,length(onsets)))
+   FSL_output[1,] = onsets
+   FSL_output[2,] = durations
+   FSL_output[3,] = rep(1,length(onsets))
+   write(FSL_output, file=paste0("FSL_", name, ".txt"), ncolumns=3)
+   for (i in 1:length(onsets)) {
+      if (i==1) {
+         AFNI_output = paste0(onsets[i], ":", durations[i])
+      } else {
+         AFNI_output = paste0(AFNI_output, " ", onsets[i], ":", durations[i])
+      }
+   }
+   write(AFNI_output, file=paste0("AFNI_", name, ".txt"), ncolumns=3)
 }
 
 n                     = 1000
@@ -67,22 +67,21 @@ for (subject_id in 1:200) {
    onsets       = events_times$onset
    setwd(paste0(path_manage, "/experimental_designs/CamCAN_sensorimotor"))
    #-AFNI
-	for (i in 1:length(onsets)) {
-		if (i==1) {
-			AFNI_output = paste0(onsets[i], ":0.1") #-0.1 chosen as the duration time for AFNI has to be positive
-		} else {
-			AFNI_output = paste0(AFNI_output, " ", onsets[i], ":0.1") #-0.1 chosen as the duration time for AFNI has to be positive
-		}
-	}
-	write(AFNI_output, file=paste0("AFNI_randomOnsets_", strrep("0", 4-nchar(paste(subject_id))), subject_id, ".txt"), ncolumns=3)
+   for (i in 1:length(onsets)) {
+      if (i==1) {
+         AFNI_output = paste0(onsets[i], ":0.1") #-0.1 chosen as the duration time for AFNI has to be positive
+      } else {
+         AFNI_output = paste0(AFNI_output, " ", onsets[i], ":0.1") #-0.1 chosen as the duration time for AFNI has to be positive
+      }
+   }
+   write(AFNI_output, file=paste0("AFNI_randomOnsets_", strrep("0", 4-nchar(paste(subject_id))), subject_id, ".txt"), ncolumns=3)
    #-FSL
-	FSL_output     = array(NA, dim=c(3,length(onsets)))
-	FSL_output[1,] = round(onsets, digits=2)
-	FSL_output[2,] = rep(0.1,length(onsets))
-	FSL_output[3,] = rep(1,  length(onsets))
-	write(FSL_output, file=paste0("FSL_randomOnsets_", strrep("0", 4-nchar(paste(subject_id))), subject_id, ".txt"), ncolumns=3)
+   FSL_output     = array(NA, dim=c(3,length(onsets)))
+   FSL_output[1,] = round(onsets, digits=2)
+   FSL_output[2,] = rep(0.1,length(onsets))
+   FSL_output[3,] = rep(1,  length(onsets))
+   write(FSL_output, file=paste0("FSL_randomOnsets_", strrep("0", 4-nchar(paste(subject_id))), subject_id, ".txt"), ncolumns=3)
    #-SPM
    write(events_times$onset, file=paste0("SPM_randomOnsets_", strrep("0", 4-nchar(paste(subject_id))), subject_id, ".txt"), sep="\n")
 }
 setwd(path_manage)
-
