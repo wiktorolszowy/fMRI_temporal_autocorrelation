@@ -71,7 +71,7 @@ for package_id      = range_packages
 
             if exist('power_spectra.mat', 'file') ~= 2
 
-               for subject_id = 1:no_subjects
+               parfor subject_id = 1:no_subjects
 
                   subject        = ['sub-' abbr repmat('0', 1, 4-length(num2str(subject_id))) num2str(subject_id)];
                   disp(subject);
