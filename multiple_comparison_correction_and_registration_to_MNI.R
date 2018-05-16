@@ -229,9 +229,9 @@ for (package in packages) {
          writeMat("cluster_binary_MNI.mat", cluster_binary_MNI = cluster_binary_MNI)
 
          #-saving the numbers of brain mask voxels and of significant voxels
-         write(sum(mask                  > 0.5),                       "no_of_mask_voxels")
-         write(sum(mask_MNI              > 0.5),                       "no_of_MNI_mask_voxels")
-         write(sum(cluster_binary_MNI    > 0.5),                       "no_of_MNI_sig_voxels")
+         write(sum(mask               > 0.5), "no_of_mask_voxels")
+         write(sum(mask_MNI           > 0.5), "no_of_MNI_mask_voxels")
+         write(sum(cluster_binary_MNI > 0.5), "no_of_MNI_sig_voxels")
 
          #-checking how many voxels in 'zstat1_FSL_SPM_masked' above 3.1
          zstat1_FSL_SPM_masked_thr = zstat1_FSL_SPM_masked     > 3.1
@@ -251,7 +251,7 @@ for (package in packages) {
          FWHMmm_y         = as.numeric(substr(FWHMmm, white_spaces[2]+1, white_spaces[3]-1))
          FWHMmm_z         = as.numeric(substr(FWHMmm, white_spaces[3]+1, nchar(FWHMmm)))
          FWHMmm_geom_mean = (FWHMmm_x*FWHMmm_y*FWHMmm_z)^(1/3)
-         write(FWHMmm_geom_mean,                         "smoothness_3D")
+         write(FWHMmm_geom_mean, "smoothness_3D")
 
          #-to make space
          if (file.exists("res4d_FSL_masked.nii.gz")==T) {
