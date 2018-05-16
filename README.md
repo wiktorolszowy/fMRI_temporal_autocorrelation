@@ -159,6 +159,9 @@ Repository contents
 - `make_folders.m`
 
   MATLAB script that makes folders where the AFNI/FSL/SPM analyses are going to be run in.
+- `make_group_analyses.m`
+
+  MATLAB script that makes group analyses in SPM after first level analyses with the SPM's default pre-whitening and with FAST.
 - `make_parallel_commands.R`
 
   R script that makes commands that are later run using the 'job array' option in 'sbatch', which is the 'slurm' tool for running jobs on an HPC cluster. The commands are saved in 'parallel_commands'.
