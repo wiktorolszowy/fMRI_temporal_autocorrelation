@@ -3,7 +3,7 @@
 | ----------- | --------------------------------------------------------------------------------- |
 | When:       | September 2016 - May 2018                                                         |
 | Purpose:    | Study "Accurate autocorrelation modeling substantially improves fMRI reliability" |
-| Preprint:   | https://arxiv.org/pdf/1711.09877.pdf                                              |
+| Preprint:   | https://www.biorxiv.org/content/early/2018/05/16/323154                           |
 | Contact:    | wo222@cam.ac.uk                                                                   |
 
 Repeat the analyses
