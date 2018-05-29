@@ -77,7 +77,6 @@ for autocorr_option_id = 1:length(autocorr_options)
          system('mkdir group_analysis');
 
          con_0001_MNI_all                                         = cellstr(spm_select('FPListRec', fullfile(path_output), '^con_0001_MNI.nii'));
-         SPM_mat_location                                         = cellstr(fullfile(path_output, 'group_analysis', 'SPM.mat'));
 
          clear jobs;
          
