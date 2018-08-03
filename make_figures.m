@@ -827,7 +827,7 @@ for study_id       = [10 11]
       if package_id == 1
          htitle = title({study_label; ' '}, 'interpreter', 'none');
       else
-         htitle     = '';
+         htitle = '';
       end
       if package_id == 4
          hx     = xlabel({' ', 'Frequency [Hz]', ' '});
