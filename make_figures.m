@@ -4,7 +4,7 @@
 %%%%   Figures comparing pre-whitening in AFNI/FSL/SPM.
 %%%%   Written by:  Wiktor Olszowy, University of Cambridge
 %%%%   Contact:     wo222@cam.ac.uk
-%%%%   Created:     September 2016 - May 2018
+%%%%   Created:     September 2016 - August 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -796,3 +796,61 @@ xlabel('          AFNI                   FSL                   SPM           SPM
 set(gca, 'xticklabel', [], 'yticklabel', [], 'xtick', [], 'ytick', []);
 figname = [paper '_dist_sm_' num2str(smoothing) '_' study];
 print_to_svg_to_pdf(figname, path_manage);
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SLICE TIMING CORRECTION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%-POWER SPECTRA
+%-only for the 'CRIC_checkerboard' and 'CamCAN_sensorimotor' datasets
+for study_id       = [10 11]
+   study           = studies{study_id};
+   study_label     = studies_labels{study_id};
+   smoothing       = 8;
+   smoothing_id    = 4;
+   figure('rend', 'painters', 'pos', [0 0 550 550], 'Visible', 'off');
+   if strcmp(study, 'CRIC_checkerboard')
+      exper_design = 'boxcar16';
+   elseif strcmp(study, 'CamCAN_sensorimotor')
+      exper_design = 'event1';
+   end
+   TR              = studies_parameters.TR(study_id);
+   f               = linspace(0, 0.5/TR, 257);
+   for package_id = 1:4
+      subplot(4, 1, package_id)
+      power_spectra     = load([path_output study '/' packages{package_id} '/smoothing_'     num2str(smoothing) '/exper_design_' exper_design '/HRF_' HRF_model '/power_spectra.mat']);
+      power_spectra     = power_spectra.power_spectra;
+      power_spectra_stc = load([path_output study '/' packages{package_id} '/smoothing_'     num2str(smoothing) '/exper_design_' exper_design '/HRF_' HRF_model '_slice_timing_correction/power_spectra.mat']);
+      power_spectra_stc = power_spectra_stc.power_spectra;
+      h1   = plot(f, power_spectra    (1:257),      'color', colors(package_id, :)); hold on;
+      h2   = plot(f, power_spectra_stc(1:257), ':', 'color', colors(package_id, :)); hold on;
+      h80  = plot([0 0.5/TR], [1 1], 'k--');                                         hold on;
+      hy   = ylabel('Power spectra', 'Units', 'normalized');
+      if package_id == 1
+         htitle = title({study_label; ' '}, 'interpreter', 'none');
+      else
+         htitle     = '';
+      end
+      if package_id == 4
+         hx     = xlabel({' ', 'Frequency [Hz]', ' '});
+      else
+         hx     = xlabel('');
+      end
+      xlim([0 0.5/TR]);
+      if strcmp(study, 'CRIC_checkerboard')
+         ylim([0 2.15]);
+      elseif strcmp(study, 'CamCAN_sensorimotor')
+         ylim([0 1.75]);
+      end
+      set([h1 h2], 'LineWidth', 2);
+      set(gca, 'XTick', linspace(0, 0.5/TR, 6));
+      set(gca, 'XTickLabel', round(linspace(0, 0.5/TR, 6), 2));
+      set(gca, 'FontSize', 8);
+      set([hx hy], 'FontSize', 10);
+      set(htitle,  'FontSize', 12);
+      legend(strrep(packages{package_id}, '_', ' '), strrep([packages{package_id} ' with slice timing correction'], '_', ' '), 'Location', 'southeast');
+      legend boxoff;
+      %-controlling distance between y axis title and y axis
+      set(hy, 'Units', 'Normalized', 'Position', [-0.1, 0.5, 0]);
+   end
+   figname = [paper '_slice_timing_correction_' study];
+   print_to_svg_to_pdf(figname, path_manage);
+end
