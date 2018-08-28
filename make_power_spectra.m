@@ -4,7 +4,7 @@
 %%%%   Calculating power spectra on GLM residuals from AFNI/FSL/SPM.
 %%%%   Written by:    Wiktor Olszowy, University of Cambridge
 %%%%   Contact:       wo222@cam.ac.uk
-%%%%   Created:       December 2017 - May 2018
+%%%%   Created:       December 2017 - August 2018
 %%%%   Adapted from:  https://github.com/wanderine/ParametricSinglesubjectfMRI/blob/master/FSL/fsl_powerspectra.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -69,54 +69,65 @@ for package_id      = range_packages
             path_subjects = [path_output study '/' package '/smoothing_' num2str(smoothing) '/exper_design_' exper_design '/HRF_' HRF_model];
             cd(path_subjects);
 
-            if exist('power_spectra.mat', 'file') ~= 2
+            system('mv power_spectra.mat power_spectra_old.mat');
 
-               parfor subject_id = 1:no_subjects
+            parfor subject_id = 1:no_subjects
 
-                  subject        = ['sub-' abbr repmat('0', 1, 4-length(num2str(subject_id))) num2str(subject_id)];
-                  disp(subject);
-                  cd([path_subjects '/' subject '/standardized_stats']);
+               subject        = ['sub-' abbr repmat('0', 1, 4-length(num2str(subject_id))) num2str(subject_id)];
 
-                  %-removing output of previous runs
-                  if exist('power_spectra_one_subject.mat', 'file') == 2
-                     system('rm power_spectra_one_subject.mat');
+               if exist([path_subjects '/' subject '/standardized_stats'], 'dir') ~= 7
+                  continue
+               end
+
+               cd([path_subjects '/' subject '/standardized_stats']);
+
+               %-removing output of previous runs
+               if exist('power_spectra_one_subject.mat', 'file') == 2
+                  system('rm power_spectra_one_subject.mat');
+               end
+
+               %-uncompressing, because niftiread has some rare/irreproducible numerical problems when reading nii.gz
+               if exist('res4d_FSL_SPM_masked.nii.gz',   'file') == 2
+                  if exist('res4d_FSL_SPM_masked.nii',   'file') == 2
+                     system('mv res4d_FSL_SPM_masked.nii res4d_FSL_SPM_masked_old.nii');
                   end
-
-                  if exist('res4d_FSL_SPM_masked.nii.gz',   'file') == 2
-                     res4d          = niftiread('res4d_FSL_SPM_masked.nii.gz');
-                  else
-                     res4d          = niftiread('res4d_FSL_SPM_masked.nii');
+                  system('gunzip res4d_FSL_SPM_masked.nii.gz');
+               end
+               if exist('zstat1_FSL_SPM_masked.nii.gz',  'file') == 2
+                  if exist('zstat1_FSL_SPM_masked.nii',  'file') == 2
+                     system('mv zstat1_FSL_SPM_masked.nii zstat1_FSL_SPM_masked_old.nii');
                   end
-                  if exist('zstat1_FSL_SPM_masked.nii.gz',  'file') == 2
-                     zstat1_masked  = niftiread('zstat1_FSL_SPM_masked.nii.gz');
-                  else
-                     zstat1_masked  = niftiread('zstat1_FSL_SPM_masked.nii');
-                  end
+                  system('gunzip zstat1_FSL_SPM_masked.nii.gz');
+               end
 
-                  dims              = size(res4d);
-                  power_spectra_one_subject = zeros(fft_n, 1);
+               res4d          = niftiread('res4d_FSL_SPM_masked.nii');
+               zstat1_masked  = niftiread('zstat1_FSL_SPM_masked.nii');
 
-                  for i1 = 1:dims(1)
+               system('gzip res4d_FSL_SPM_masked.nii');
+               system('gzip zstat1_FSL_SPM_masked.nii');
 
-                     for i2 = 1:dims(2)
+               dims              = size(res4d);
+               power_spectra_one_subject = zeros(fft_n, 1);
 
-                        for i3 = 1:dims(3)
+               for i1 = 1:dims(1)
 
-                           if zstat1_masked(i1, i2, i3) ~= 0
+                  for i2 = 1:dims(2)
 
-                              ts = squeeze(res4d(i1, i2, i3, :));
+                     for i3 = 1:dims(3)
 
-                              if (std(ts) ~= 0)
+                        if zstat1_masked(i1, i2, i3) ~= 0
 
-                                 %-make signal variance equal to 1
-                                 ts  = ts/(std(ts) + eps);
+                           ts = squeeze(res4d(i1, i2, i3, :));
 
-                                 %-compute the discrete Fourier transform (DFT)
-                                 DFT = fft(ts, fft_n);
+                           if (std(ts) ~= 0)
 
-                                 power_spectra_one_subject = power_spectra_one_subject + ((abs(DFT)).^2)/min(dims(4), fft_n);
+                              %-make signal variance equal to 1
+                              ts  = ts/(std(ts) + eps);
 
-                              end
+                              %-compute the discrete Fourier transform (DFT)
+                              DFT = fft(ts, fft_n);
+
+                              power_spectra_one_subject = power_spectra_one_subject + ((abs(DFT)).^2)/min(dims(4), fft_n);
 
                            end
 
@@ -126,33 +137,43 @@ for package_id      = range_packages
 
                   end
 
-                  %-average power spectra over all brain voxels
-                  power_spectra_one_subject = power_spectra_one_subject / sum(zstat1_masked(:) ~= 0);
-
-                  %-trick to save within parfor
-                  parsave('power_spectra_one_subject.mat', power_spectra_one_subject);
-
                end
 
-               power_spectra  = zeros(fft_n, 1);
+               %-average power spectra over all brain voxels
+               power_spectra_one_subject = power_spectra_one_subject / sum(zstat1_masked(:) ~= 0);
 
-               for subject_id = 1:no_subjects
-
-                  subject       = ['sub-' abbr repmat('0', 1, 4-length(num2str(subject_id))) num2str(subject_id)];
-                  cd([path_subjects '/' subject '/standardized_stats']);
-                  load('power_spectra_one_subject.mat');
-                  power_spectra = power_spectra + power_spectra_one_subject;
-
-               end
-
-               cd(path_subjects);
-
-               %-average power spectra over subjects
-               power_spectra = power_spectra / no_subjects;
-
-               save('power_spectra.mat', 'power_spectra');
+               %-trick to save within parfor
+               parsave('power_spectra_one_subject.mat', power_spectra_one_subject);
 
             end
+
+            power_spectra  = zeros(fft_n, 1);
+
+            %-number of subjects without full output/without power spectra (some rare BMMR runs, only SPM/FAST)
+            no_wo_output   = 0;
+
+            for subject_id = 1:no_subjects
+
+               subject       = ['sub-' abbr repmat('0', 1, 4-length(num2str(subject_id))) num2str(subject_id)];
+
+               if exist([path_subjects '/' subject '/standardized_stats'], 'dir') ~= 7
+                  disp(['little output, probably the omnibus contrast from SPM/FAST did not return any voxels for BMMR! subject ' subject]);
+                  no_wo_output  = no_wo_output + 1;
+                  continue
+               end
+
+               cd([path_subjects '/' subject '/standardized_stats']);
+               load('power_spectra_one_subject.mat');
+               power_spectra = power_spectra + power_spectra_one_subject;
+
+            end
+
+            cd(path_subjects);
+
+            %-average power spectra over subjects
+            power_spectra = power_spectra / (no_subjects-no_wo_output);
+
+            save('power_spectra.mat', 'power_spectra');
 
          end
 

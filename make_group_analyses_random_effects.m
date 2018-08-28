@@ -1,10 +1,11 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%   Aim: investigate if pre-whitening in SPM affects group level analyses.
+%%%%   Aim: investigate if pre-whitening affects group level analyses when using a random
+%%%%   effects model (via SPM).
 %%%%   Written by:    Wiktor Olszowy, University of Cambridge
 %%%%   Contact:       wo222@cam.ac.uk
-%%%%   Created:       May 2018
+%%%%   Created:       May 2018 - August 2018
 %%%%   Adapted from:  https://github.com/wanderine/ParametricMultisubjectfMRI/blob/master/SPM/run_random_group_analyses_onesamplettest_1.m
 %%%%                  http://www.fil.ion.ucl.ac.uk/spm/data/face_rfx/
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -13,8 +14,8 @@
 path_manage         = fgetl(fopen('path_manage.txt'));
 path_scratch        = fgetl(fopen('path_scratch.txt'));
 studies_parameters  = readtable([path_manage '/studies_parameters.txt']);
+packages            = cellstr(['AFNI    '; 'FSL     '; 'SPM     '; 'SPM_FAST']);
 exper_designs       = cellstr(['boxcar10'; 'boxcar12'; 'boxcar14'; 'boxcar16'; 'boxcar18'; 'boxcar20'; 'boxcar22'; 'boxcar24'; 'boxcar26'; 'boxcar28'; 'boxcar30'; 'boxcar32'; 'boxcar34'; 'boxcar36'; 'boxcar38'; 'boxcar40'; 'event1  '; 'event2  ']);
-autocorr_options    = cellstr(['default'; 'FAST   ']);
 HRF_model           = 'gamma2_D';
 smoothing           = 8;
 
@@ -27,25 +28,29 @@ spm('Defaults', 'fMRI');
 spm_jobman('initcfg');
 
 
-for autocorr_option_id = 1:length(autocorr_options)
+for package_id         = 1:length(packages)
 
-   autocorr_option     = autocorr_options{autocorr_option_id};
+   package             = packages{package_id};
 
-   for exper_design_id = 1:length(exper_designs)
+   for study_id        = 1:length(studies)
 
-      exper_design     = exper_designs{exper_design_id};
+      study            = studies_parameters.study{study_id};
+      abbr             = studies_parameters.abbr{study_id};
+      task             = studies_parameters.task{study_id};
 
-      for study_id        = 1:11
+      %-following Eklund ea 2016, I only consider 1-sample t-test, where the sample is of size 20
+      %-BMMR_checkerboard is of size 21, but for some very rare runs there were problems with SPM/FAST: the omnibus contrast did not return any voxels
+      if strcmp(study, 'BMMR_checkerboard')
+         no_subjects   = studies_parameters.n(study_id);
+      else
+         no_subjects   = 20;
+      end
 
-         study            = studies_parameters.study{study_id};
-         abbr             = studies_parameters.abbr{study_id};
-         task             = studies_parameters.task{study_id};
-         no_subjects      = studies_parameters.n(study_id);
-         if strcmp(autocorr_option, 'default')
-            path_output   = [path_scratch '/analysis_output_' study      '/SPM/smoothing_' num2str(smoothing) '/exper_design_' exper_design '/HRF_' HRF_model];
-         else
-            path_output   = [path_scratch '/analysis_output_' study '/SPM_FAST/smoothing_' num2str(smoothing) '/exper_design_' exper_design '/HRF_' HRF_model];
-         end
+      for exper_design_id = 1:length(exper_designs)
+
+         exper_design     = exper_designs{exper_design_id};
+
+         path_output      = [path_scratch '/analysis_output_' study '/' package '/smoothing_' num2str(smoothing) '/exper_design_' exper_design '/HRF_' HRF_model];
 
          %-for CamCAN data, only some experimental designs
          if strcmp(study, 'CamCAN_sensorimotor') && ~strcmp(exper_design, 'boxcar10') && ~strcmp(exper_design, 'boxcar40') && ~strcmp(exper_design, 'event1') && ~strcmp(exper_design, 'event2')
@@ -56,36 +61,39 @@ for autocorr_option_id = 1:length(autocorr_options)
          if ~strcmp(study, 'CamCAN_sensorimotor') && (strcmp(exper_design, 'event1') || strcmp(exper_design, 'event2'))
             continue
          end
-
-         disp(path_output);
-         disp('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-
-         %-registering 'con_0001' to MNI space
+         
+         %-removing possible NaNs
          for subject_id   = 1:no_subjects
             subject       = ['sub-' abbr repmat('0', 1, 4-length(num2str(subject_id))) num2str(subject_id)];
-            cd([path_output '/' subject]);
-            if exist('standardized_stats/con_0001_MNI.nii', 'file') ~= 2
-               system('flirt -ref standardized_stats/standard -in con_0001 -applyxfm -init standardized_stats/example_func2standard.mat -out standardized_stats/con_0001_MNI');
-               system('gunzip standardized_stats/con_0001_MNI.nii.gz');
+            if exist([path_output '/' subject '/standardized_stats/coef1_FSL_SPM_masked_MNI.nii'] , 'file') == 2
+               cd([path_output '/' subject '/standardized_stats']);
+               system('fslmaths coef1_FSL_SPM_masked_MNI.nii -nan coef1_FSL_SPM_masked_MNI.nii.gz');
+               system('rm coef1_FSL_SPM_masked_MNI.nii');
+               system('gunzip coef1_FSL_SPM_masked_MNI.nii.gz');
             end
          end
-
+         
          cd(path_output);
 
-         SPM_mat_location                                         = cellstr(fullfile(path_output, 'group_analysis', 'SPM.mat'));
+         system('mkdir group_analysis_random_effects');
 
-         system('mkdir group_analysis');
+         %-'coef1_FSL_SPM_masked_MNI.nii' were previously generated by 'make_group_analyses_mixed_effects.R'
+         coef_maps                                                = cellstr(spm_select('FPListRec', fullfile(path_output), '^coef1_FSL_SPM_masked_MNI.nii'));
 
-         con_0001_MNI_all                                         = cellstr(spm_select('FPListRec', fullfile(path_output), '^con_0001_MNI.nii'));
+         %-BMMR_checkerboard is of size 21, but for some very rare runs there were problems with SPM/FAST: the omnibus contrast did not return any voxels
+         if ~strcmp(study, 'BMMR_checkerboard')
+            coef_maps                                             = coef_maps(1:no_subjects);
+         end
+
+         SPM_mat_location                                         = cellstr(fullfile(path_output, 'group_analysis_random_effects', 'SPM.mat'));
 
          clear jobs;
          
-         jobs{1}.stats{1}.factorial_design.dir                    = cellstr(fullfile(path_output, 'group_analysis'));
-         jobs{1}.stats{1}.factorial_design.des.t1.scans           = con_0001_MNI_all;
+         jobs{1}.stats{1}.factorial_design.dir                    = cellstr(fullfile(path_output, 'group_analysis_random_effects'));
+         jobs{1}.stats{1}.factorial_design.des.t1.scans           = coef_maps;
          jobs{1}.stats{1}.factorial_design.cov                    = struct('c', {}, 'cname', {}, 'iCFI', {}, 'iCC', {});
-         jobs{1}.stats{1}.factorial_design.masking.tm.tm_none     = 1;
-         jobs{1}.stats{1}.factorial_design.masking.im             = 1;
-         jobs{1}.stats{1}.factorial_design.masking.em             = {''};
+         %-using the explicit mask from the mixed effects run
+         jobs{1}.stats{1}.factorial_design.masking.em             = {[path_output '/group_analysis_mixed_effects/mask.nii']};
          jobs{1}.stats{1}.factorial_design.globalc.g_omit         = 1;
          jobs{1}.stats{1}.factorial_design.globalm.gmsca.gmsca_no = 1;
          jobs{1}.stats{1}.factorial_design.globalm.glonorm        = 1;
@@ -102,7 +110,7 @@ for autocorr_option_id = 1:length(autocorr_options)
          spm_jobman('run', jobs);
 
          %-get t-map
-         V           = spm_vol([path_output '/group_analysis/spmT_0001.nii']);
+         V           = spm_vol([path_output '/group_analysis_random_effects/spmT_0001.nii']);
          [tmap,aa]   = spm_read_vols(V);
 
          %-calculate cluster extent threshold
@@ -118,9 +126,6 @@ for autocorr_option_id = 1:length(autocorr_options)
          if max_cluster >= k
             indices     = find(tmap>u);
             disp([study ' ' num2str(smoothing) ' ' exper_design ': significant!']);
-            disp('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-            disp('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-            disp('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
             disp('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
             disp('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
             disp('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');

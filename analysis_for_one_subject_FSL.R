@@ -4,13 +4,14 @@
 ####   FSL analysis for 1 fMRI scan, for different combinations of options.
 ####   Written by:    Wiktor Olszowy, University of Cambridge
 ####   Contact:       wo222@cam.ac.uk
-####   Created:       September 2016 - May 2018
+####   Created:       September 2016 - August 2018
 ###############################################################################################
 
 
 library(reshape2)
 library(tools)
 library(stringr)       #-for str_replace_all
+
 
 path_manage        = readLines("path_manage.txt")
 path_scratch       = readLines("path_scratch.txt")
@@ -117,6 +118,19 @@ for (smoothing in smoothings) {
          new_cutoff = 100
          system(paste0("sed -i 's:'", def_cutoff, "':'", new_cutoff, "':g' ", "design_", subject, ".fsf"))
 
+         #-change motion correction
+         def_mc     = "mc_replace"
+         def_mp     = "mp_replace"
+         if (study=="BMMR_checkerboard") {
+            new_mc  = 0
+            new_mp  = 0
+         } else {
+            new_mc  = 1
+            new_mp  = 1
+         }
+         system(paste0("sed -i 's:'", def_mc, "':'", new_mc, "':g' ", "design_", subject, ".fsf"))
+         system(paste0("sed -i 's:'", def_mp, "':'", new_mp, "':g' ", "design_", subject, ".fsf"))
+         
          #-FEAT 'preproc' analysis
          system(paste0("fsl5.0-feat design_", subject, ".fsf"))
 
@@ -166,6 +180,19 @@ for (smoothing in smoothings) {
       def_feat = "feat_preproc_location_replace"
       new_feat = paste0(path_output_top, "/FSL/smoothing_", smoothing, "/exper_design_", exper_design, "/HRF_", HRF_model, "/", subject, ".feat")
       system(paste0("sed -i 's:", def_feat, ":", new_feat, ":g' design_", subject, ".fsf"))
+
+      #-change motion correction
+      def_mc     = "mc_replace"
+      def_mp     = "mp_replace"
+      if (study=="BMMR_checkerboard") {
+         new_mc  = 0
+         new_mp  = 0
+      } else {
+         new_mc  = 1
+         new_mp  = 1
+      }
+      system(paste0("sed -i 's:'", def_mc, "':'", new_mc, "':g' ", "design_", subject, ".fsf"))
+      system(paste0("sed -i 's:'", def_mp, "':'", new_mp, "':g' ", "design_", subject, ".fsf"))
 
       #-FEAT 'stats' analysis
       system(paste0("fsl5.0-feat design_", subject, ".fsf"))

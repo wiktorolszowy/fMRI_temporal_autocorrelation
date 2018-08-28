@@ -70,7 +70,7 @@ set fmri(noisear) 0.34
 # Motion correction
 # 0 : None
 # 1 : MCFLIRT
-set fmri(mc) 1
+set fmri(mc) mc_replace
 
 # Spin-history (currently obsolete)
 set fmri(sh_yn) 0
@@ -135,7 +135,7 @@ set fmri(prewhiten_yn) 1
 # Add motion parameters to model
 # 0 : No
 # 1 : Yes
-set fmri(motionevs) 0
+set fmri(motionevs) mp_replace
 set fmri(motionevsbeta) ""
 set fmri(scriptevsbeta) ""
 

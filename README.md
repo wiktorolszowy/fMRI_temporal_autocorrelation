@@ -1,7 +1,7 @@
 
 | Written by: | Wiktor Olszowy, Department of Clinical Neurosciences, University of Cambridge     |
 | ----------- | --------------------------------------------------------------------------------- |
-| When:       | September 2016 - May 2018                                                         |
+| When:       | September 2016 - August 2018                                                      |
 | Purpose:    | Study "Accurate autocorrelation modeling substantially improves fMRI reliability" |
 | Preprint:   | https://www.biorxiv.org/content/early/2018/05/16/323154                           |
 | Contact:    | wo222@cam.ac.uk                                                                   |
@@ -39,7 +39,9 @@ part=3; sbatch --array=1-980 slurm_submit.array.hphi; sleep 60  #-for SPM
 part=4; sbatch --array=1-980 slurm_submit.array.hphi; sleep 60  #-for post-stats
 matlab -r -nodesktop "run('make_power_spectra.m'); exit"
 matlab -r -nodesktop "run('make_combined_results_from_single_runs.m'); exit"
-matlab -r -nodesktop "run('make_group_analyses.m'); exit"
+R -e "source('make_group_analyses_mixed_effects.R')"
+matlab -r -nodesktop "run('make_group_analyses_random_effects.m'); exit"
+R -e "source('make_combined_results_from_group_runs.R')"
 matlab -r -nodesktop "run('make_figures.m'); exit"
 ```
 
@@ -105,7 +107,7 @@ Repository contents
    - ...
 - `figures`
 
-  Figures made by the MATLAB script 'make_figures.m'. Figures from the paper, including from the appendix, can be found here.
+  Figures made by the MATLAB script 'make_figures.m'. Figures from the paper, including from the supplement, can be found here.
    - ...
 - `FSL_FEAT_designs`
    - `design_gamma2_D.fsf`
@@ -126,6 +128,9 @@ Repository contents
    
      Thomas Nichols' functions used for the PNAS 2016 Eklund et al. study, needed for cluster inference in SPM.
    - `parsave.m`
+   
+     Auxiliary function to save within parfor.
+   - `parsave2.m`
    
      Auxiliary function to save within parfor.
    - `print_to_svg_to_pdf.m`
@@ -159,9 +164,12 @@ Repository contents
 - `make_folders.m`
 
   MATLAB script that makes folders where the AFNI/FSL/SPM analyses are going to be run in.
-- `make_group_analyses.m`
+- `make_group_analyses_mixed_effects.R`
 
-  MATLAB script that makes group analyses in SPM after first level analyses with the SPM's default pre-whitening and with FAST.
+  R script that makes group analyses with AFNI's 3dMEMA after first level analyses with AFNI/FSL/SPM/FAST.
+- `make_group_analyses_random_effects.m`
+
+  MATLAB script that makes group analyses with SPM's summary statistic approach after first level analyses with AFNI/FSL/SPM/FAST.
 - `make_parallel_commands.R`
 
   R script that makes commands that are later run using the 'job array' option in 'sbatch', which is the 'slurm' tool for running jobs on an HPC cluster. The commands are saved in 'parallel_commands'.

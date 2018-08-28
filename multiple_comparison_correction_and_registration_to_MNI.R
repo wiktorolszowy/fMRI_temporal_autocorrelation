@@ -5,7 +5,7 @@
 ####   via FSL. For statistic maps generated in AFNI, FSL and SPM.
 ####   Written by:    Wiktor Olszowy, University of Cambridge
 ####   Contact:       wo222@cam.ac.uk
-####   Created:       October 2017 - May 2018
+####   Created:       October 2017 - August 2018
 ###############################################################################################
 
 
@@ -14,6 +14,7 @@ library(tools)
 library(R.matlab)
 library(AnalyzeFMRI)
 library(stringr)       #-for str_replace_all
+
 
 path_manage        = readLines("path_manage.txt")
 path_scratch       = readLines("path_scratch.txt")
@@ -57,6 +58,11 @@ for (package in packages) {
          path = paste0(path_output_top, "/", package, "/smoothing_", smoothing, "/exper_design_", exper_design, "/HRF_", HRF_model, "/", subject)
          setwd(path)
 
+         if (length(list.files()) < 5 ) {
+            cat("\n \n little output, probably the omnibus contrast from SPM/FAST did not return any voxels for BMMR! at: \n", getwd(), "\n \n \n")
+            next
+         }
+
          system("mkdir standardized_stats")
 
          #-checking if the subject already analyzed, there should be at least 19 files in 'standardized_stats'
@@ -65,7 +71,7 @@ for (package in packages) {
             next
          }
 
-         cat(getwd(), "\n")
+         cat("currently at ", getwd(), "\n")
 
          if (package=="AFNI") {
 
@@ -123,10 +129,14 @@ for (package in packages) {
             path = paste0(path, "/standardized_stats")
             setwd(path)
             system(paste0("fslmaths ", path, "/zstat1            -mas ", path_to_FSL, "/mask ", path, "/zstat1_FSL_masked"))
-            system(paste0("fslmaths ", path, "/zstat1_FSL_masked -mas ", path_to_SPM, "/mask ", path, "/zstat1_FSL_SPM_masked"))
             system(paste0("fslmaths ", path, "/res4d             -mas ", path_to_FSL, "/mask ", path, "/res4d_FSL_masked"))
-            system(paste0("fslmaths ", path, "/res4d_FSL_masked  -mas ", path_to_SPM, "/mask ", path, "/res4d_FSL_SPM_masked"))
-
+            if (file.exists(paste0(path_to_SPM, "/mask.nii"))) {
+               system(paste0("fslmaths ", path, "/zstat1_FSL_masked -mas ", path_to_SPM, "/mask ", path, "/zstat1_FSL_SPM_masked"))
+               system(paste0("fslmaths ", path, "/res4d_FSL_masked  -mas ", path_to_SPM, "/mask ", path, "/res4d_FSL_SPM_masked"))
+            } else {
+               system(paste0("cp ", path, "/zstat1_FSL_masked.nii.gz ", path, "/zstat1_FSL_SPM_masked.nii.gz"))
+               system(paste0("cp ", path, "/res4d_FSL_masked.nii.gz  ", path, "/res4d_FSL_SPM_masked.nii.gz"))
+            }
          } else if (package=="FSL") {
 
             #-copying the z-statistic map
@@ -149,8 +159,14 @@ for (package in packages) {
             path_to_SPM = str_replace_all(path, "FSL", "SPM")
             path        = paste0(path, "/standardized_stats")
             setwd(path)
-            system(paste0("fslmaths ", path, "/zstat1 -mas ", path_to_SPM, "/mask ", path, "/zstat1_FSL_SPM_masked"))
-            system(paste0("fslmaths ", path, "/res4d  -mas ", path_to_SPM, "/mask ", path, "/res4d_FSL_SPM_masked"))
+            if (file.exists(paste0(path_to_SPM, "/mask.nii"))) {
+               system(paste0("fslmaths ", path, "/zstat1 -mas ", path_to_SPM, "/mask ", path, "/zstat1_FSL_SPM_masked"))
+               system(paste0("fslmaths ", path, "/res4d  -mas ", path_to_SPM, "/mask ", path, "/res4d_FSL_SPM_masked"))
+            } else {
+               system(paste0("cp ", path, "/zstat1.nii.gz ", path, "/zstat1_FSL_SPM_masked.nii.gz"))
+               system(paste0("cp ", path, "/res4d.nii.gz  ", path, "/res4d_FSL_SPM_masked.nii.gz"))
+               cat("\n \n little output for SPM, probably the omnibus contrast from SPM/FAST did not return any voxels for BMMR!, at: \n", getwd(), "\n \n \n")
+            }
 
          } else if (package=="SPM" || package=="SPM_FAST") {
 
@@ -197,8 +213,14 @@ for (package in packages) {
 
          #-copying FSL MNI registration template and the corresponding transformation
          #-be careful with CamCAN data, as the standard pipeline considers only 8 mm smoothing for CamCAN!
-         system(paste0("cp ", path_output_top, "/FSL/smoothing_4/exper_design_boxcar10/preproc_feats/", subject, "_preproc.feat/reg/standard.nii.gz standard.nii.gz"))
-         system(paste0("cp ", path_output_top, "/FSL/smoothing_4/exper_design_boxcar10/preproc_feats/", subject, "_preproc.feat/reg/example_func2standard.mat example_func2standard.mat"))
+         #-for the BMMR checkerboard data, old registrations were better!
+         if (study=="BMMR_checkerboard") {
+            path_output_top_aux = str_replace_all(path_output_top, pattern="analysis_output_BMMR_checkerboard", repl="BACKUP_analysis_output_BMMR_checkerboard_old")
+         } else {
+            path_output_top_aux = path_output_top
+         }
+         system(paste0("cp ", path_output_top_aux, "/FSL/smoothing_4/exper_design_boxcar10/preproc_feats/", subject, "_preproc.feat/reg/standard.nii.gz standard.nii.gz"))
+         system(paste0("cp ", path_output_top_aux, "/FSL/smoothing_4/exper_design_boxcar10/preproc_feats/", subject, "_preproc.feat/reg/example_func2standard.mat example_func2standard.mat"))
 
          #-changing all names of clusters to 1, to avoid later problems with interpolation
          system("fslmaths 'cluster_index' -thr 0.5 -bin 'cluster_binary'")

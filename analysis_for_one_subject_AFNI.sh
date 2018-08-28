@@ -4,7 +4,7 @@
 ####   AFNI analysis for 1 fMRI scan, for different combinations of options.
 ####   Written by:    Wiktor Olszowy, University of Cambridge
 ####   Contact:       wo222@cam.ac.uk
-####   Created:       February 2017 - May 2018
+####   Created:       February 2017 - August 2018
 ####   Adapted from:  https://github.com/wanderine/ParametricMultisubjectfMRI/tree/master/AFNI
 ###############################################################################################
 
@@ -93,27 +93,52 @@ for ((smoothing_id=0; smoothing_id<${#smoothings[@]}; smoothing_id++)) {
       if [ ! -d "$subject" ]; then
       
          #-read https://afni.nimh.nih.gov/afni/community/board/read.php?1,156558,156558#msg-156558
-         afni_proc.py                                                                \
-            -subj_id $subject                                                        \
-            -script proc.$subject -scr_overwrite                                     \
-            -regress_opts_3dD -force_TR $TR                                          \
-            -tcat_remove_first_trs 0                                                 \
-            -dsets ${path_data}/${subject}_${task}_bold.nii                          \
-            -volreg_align_to third                                                   \
-            -regress_polort 2                                                        \
-            -regress_bandpass 0.01 10                                                \
-            -blur_size ${smoothing}.${zero_aux}                                      \
-            -regress_stim_types AM1                                                  \
-            -regress_stim_times $stim_times                                          \
-            -regress_stim_labels activation_stimulus                                 \
-            -regress_basis ${HRF}                                                    \
-            -regress_make_ideal_sum sum_ideal.1D                                     \
-            -regress_run_clustsim no                                                 \
-            -regress_est_blur_epits                                                  \
-            -regress_est_blur_errts                                                  \
-            -regress_reml_exec                                                       \
-            -regress_opts_reml -Rwherr whitened_errts.${subject}_REML
-         
+         if [ "$study" == BMMR_checkerboard ]; then
+            #-without motion correction
+            afni_proc.py                                                                \
+               -subj_id $subject                                                        \
+               -script proc.$subject -scr_overwrite                                     \
+               -blocks tshift blur mask scale regress                                   \
+               -regress_opts_3dD -force_TR $TR                                          \
+               -tcat_remove_first_trs 0                                                 \
+               -dsets ${path_data}/${subject}_${task}_bold.nii                          \
+               -regress_polort 2                                                        \
+               -regress_bandpass 0.01 10                                                \
+               -blur_size ${smoothing}.${zero_aux}                                      \
+               -regress_stim_types AM1                                                  \
+               -regress_stim_times $stim_times                                          \
+               -regress_stim_labels activation_stimulus                                 \
+               -regress_basis ${HRF}                                                    \
+               -regress_make_ideal_sum sum_ideal.1D                                     \
+               -regress_run_clustsim no                                                 \
+               -regress_est_blur_epits                                                  \
+               -regress_est_blur_errts                                                  \
+               -regress_reml_exec                                                       \
+               -regress_opts_reml -Rwherr whitened_errts.${subject}_REML
+         else
+            #-with motion correction
+            afni_proc.py                                                                \
+               -subj_id $subject                                                        \
+               -script proc.$subject -scr_overwrite                                     \
+               -regress_opts_3dD -force_TR $TR                                          \
+               -tcat_remove_first_trs 0                                                 \
+               -dsets ${path_data}/${subject}_${task}_bold.nii                          \
+               -volreg_align_to third                                                   \
+               -regress_polort 2                                                        \
+               -regress_bandpass 0.01 10                                                \
+               -blur_size ${smoothing}.${zero_aux}                                      \
+               -regress_stim_types AM1                                                  \
+               -regress_stim_times $stim_times                                          \
+               -regress_stim_labels activation_stimulus                                 \
+               -regress_basis ${HRF}                                                    \
+               -regress_make_ideal_sum sum_ideal.1D                                     \
+               -regress_run_clustsim no                                                 \
+               -regress_est_blur_epits                                                  \
+               -regress_est_blur_errts                                                  \
+               -regress_reml_exec                                                       \
+               -regress_opts_reml -Rwherr whitened_errts.${subject}_REML
+         fi
+
          #-run the AFNI analysis
          tcsh -xef proc.${subject} |& tee  output.proc.${subject}
          

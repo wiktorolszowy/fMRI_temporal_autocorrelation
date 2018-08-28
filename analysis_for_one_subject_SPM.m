@@ -4,7 +4,7 @@
 %%%%   SPM analysis for 1 fMRI scan, for different combinations of options.
 %%%%   Written by:    Wiktor Olszowy, University of Cambridge
 %%%%   Contact:       wo222@cam.ac.uk
-%%%%   Created:       February 2017 - April 2018
+%%%%   Created:       February 2017 - August 2018
 %%%%   Adapted from:  https://github.com/wanderine/ParametricMultisubjectfMRI/tree/master/SPM
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -69,15 +69,23 @@ for autocorr_option_id = 1:length(autocorr_options)
          system(['mkdir ' subject]);
          path_preproc = [path_preproc_top '/' subject];
          cd(path_preproc);
+
          %-copy the scans
          system(['cp ' path_data '/' bold_file '.nii '           path_preproc]);
          system(['cp ' path_data '/' subject   '_T1w.nii '       path_preproc]);
          system(['cp ' path_data '/' subject   '_T1w_brain.nii ' path_preproc]);
 
+         job_no = 0;
+
          %-REALIGN (motion correction)
-         job_no = 1;
-         filename = [path_preproc '/' bold_file '.nii'];
-         jobs{job_no}.spatial{1}.realign{1}.estwrite.data{1} = cellstr(filename);
+         if strcmp(study, 'BMMR_checkerboard')
+            %-for 'BMMR_checkerboard', motion correction was applied before the data was distributed
+            system(['mv ' bold_file '.nii r' bold_file '.nii']);
+         else
+            job_no                                              = job_no + 1;
+            filename                                            = [path_preproc '/' bold_file '.nii'];
+            jobs{job_no}.spatial{1}.realign{1}.estwrite.data{1} = cellstr(filename);
+         end
 
          %-SMOOTHING
          for smoothing_id = 1:length(smoothings)
@@ -118,7 +126,7 @@ for autocorr_option_id = 1:length(autocorr_options)
          if (7==exist(subject, 'dir')==1)
             cd(subject);
             %-don't forget that 'dir' returns two elements more; btw the threshold should be dataset-dependent (as numbers of time points = numbers of 'Res_'s different)
-            if length(dir)>235
+            if length(dir) > 235
                likely_complete = 1;
                cd ..
             else
@@ -158,7 +166,9 @@ for autocorr_option_id = 1:length(autocorr_options)
             end
             
             %-including motion regressors in the GLM
-            jobs{1}.stats{1}.fmri_spec.sess.multi_reg           = {[path_preproc '/rp_' bold_file '.txt']};
+            if ~strcmp(study, 'BMMR_checkerboard')
+               jobs{1}.stats{1}.fmri_spec.sess.multi_reg        = {[path_preproc '/rp_' bold_file '.txt']};
+            end
             
             %-HRF: canonical with 1st derivative
             jobs{1}.stats{1}.fmri_spec.bases.hrf.derivs         = [1 0];
@@ -168,20 +178,31 @@ for autocorr_option_id = 1:length(autocorr_options)
                jobs{1}.stats{1}.fmri_spec.cvi                   = 'FAST';
             end
             
-            filename_mat                                = [filename '/SPM.mat'];
-            jobs{1}.stats{2}.fmri_est.spmmat            = cellstr(filename_mat);
-            jobs{1}.stats{3}.con.spmmat                 = cellstr(filename_mat);
-            jobs{1}.stats{3}.con.consess{1}.tcon        = struct('name', 'task1 > rest', 'convec', 1, 'sessrep', 'none');
-            jobs{1}.stats{4}.results.spmmat             = cellstr(filename_mat);
-            jobs{1}.stats{4}.results.conspec.contrasts  = 1;
-            jobs{1}.stats{4}.results.conspec.threshdesc = 'none';
-            jobs{1}.stats{4}.results.conspec.thresh     = 0.001;
-            jobs{1}.stats{4}.results.conspec.extent     = 0;
-            jobs{1}.stats{4}.results.print              = false;
+            filename_mat                                        = [filename '/SPM.mat'];
+            jobs{1}.stats{2}.fmri_est.spmmat                    = cellstr(filename_mat);
 
-            spm_jobman('run', jobs);
-            %-saving/not removing GLM residuals
-            VRes = spm_write_residuals(SPM, NaN);
+            try
+
+               jobs{1}.stats{3}.con.spmmat                 = cellstr(filename_mat);
+               jobs{1}.stats{3}.con.consess{1}.tcon        = struct('name', 'task1 > rest', 'convec', 1, 'sessrep', 'none');
+               %jobs{1}.stats{4}.results.spmmat             = cellstr(filename_mat);
+               %jobs{1}.stats{4}.results.conspec.contrasts  = 1;
+               %jobs{1}.stats{4}.results.conspec.threshdesc = 'none';
+               %jobs{1}.stats{4}.results.conspec.thresh     = 0.001;
+               %jobs{1}.stats{4}.results.conspec.extent     = 0;
+               %jobs{1}.stats{4}.results.print              = false;
+               spm_jobman('run', jobs);
+
+               %-saving/not removing GLM residuals
+               cd([path_output '/' subject]);
+               load('SPM.mat');
+               VRes = spm_write_residuals(SPM, NaN);
+
+            catch
+
+               disp('likely problem with the omnibus contrast -> no voxels returned');
+
+            end
             
          end
          

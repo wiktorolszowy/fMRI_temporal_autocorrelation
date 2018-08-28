@@ -4,7 +4,7 @@
 %%%%   Combining results from single runs to 'mat' files. Necessary for making figures.
 %%%%   Written by:  Wiktor Olszowy, University of Cambridge
 %%%%   Contact:     wo222@cam.ac.uk
-%%%%   Created:     July 2017 - May 2018
+%%%%   Created:     July 2017 - August 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -34,6 +34,7 @@ range_studies       = 1:length(studies);
 range_exper_designs = 1:length(exper_designs);
 range_smoothings    = 1:length(smoothings);
 HRF_model           = 'gamma2_D';
+exper_designs_dist  = cellstr(['boxcar12'; 'boxcar16'; 'boxcar20'; 'boxcar40']);
 
 
 cd(path_manage);
@@ -91,21 +92,22 @@ for package_id    = range_packages
 
                cd([path_output study '/' package '/smoothing_' num2str(smoothing) '/exper_design_' exper_design '/HRF_' HRF_model]);
 
-               if exist(subject, 'dir') == 7
+               if exist([subject '/standardized_stats'] , 'dir') == 7
                   cd([subject '/standardized_stats']);
                else
                   disp([pwd ' ' subject]);
+                  continue
                end
 
                if exist('no_of_MNI_sig_voxels', 'file') == 2
 
-                  no_of_MNI_sig_voxels                                         = fscanf(fopen('no_of_MNI_sig_voxels',      'r'), '%d');
-                  combined_parfor           (smoothing_id, exper_design_id)    = no_of_MNI_sig_voxels;
-                  no_of_MNI_mask_voxels                                        = fscanf(fopen('no_of_MNI_mask_voxels',     'r'), '%d');
+                  no_of_MNI_sig_voxels                           = fscanf(fopen('no_of_MNI_sig_voxels',  'r'), '%d');
+                  combined_parfor(smoothing_id, exper_design_id) = no_of_MNI_sig_voxels;
+                  no_of_MNI_mask_voxels                          = fscanf(fopen('no_of_MNI_mask_voxels', 'r'), '%d');
 
                   if no_of_MNI_mask_voxels > 0
 
-                     combined_fraction_parfor(smoothing_id, exper_design_id) = no_of_MNI_sig_voxels/no_of_MNI_mask_voxels;
+                     combined_fraction_parfor(smoothing_id, exper_design_id)      = no_of_MNI_sig_voxels/no_of_MNI_mask_voxels;
 
                      %-residuals in SPM saved with format 'FLOAT64' opposed to 'FLOAT32' in AFNI and FSL
                      if strcmp(package, 'SPM') || strcmp(package, 'SPM_FAST')
@@ -114,8 +116,8 @@ for package_id    = range_packages
                         combined_res4d_size_parfor(smoothing_id, exper_design_id) = fscanf(fopen('res4d_FSL_SPM_masked_size', 'r'), '%d');
                      end
 
-                     combined_smoothness_parfor(smoothing_id, exper_design_id) = fscanf(fopen('smoothness_3D',             'r'), '%f');
-                     combined_prop_ab_31_parfor(smoothing_id, exper_design_id) = fscanf(fopen('prop_above_3_1',            'r'), '%f');
+                     combined_smoothness_parfor(smoothing_id, exper_design_id)    = fscanf(fopen('smoothness_3D',             'r'), '%f');
+                     combined_prop_ab_31_parfor(smoothing_id, exper_design_id)    = fscanf(fopen('prop_above_3_1',            'r'), '%f');
 
                   else
 
@@ -184,3 +186,62 @@ save('combined_results/pos_fractions',     'pos_fractions');
 save('combined_results/res4d_size',        'res4d_size');
 save('combined_results/smoothness',        'smoothness');
 save('combined_results/prop_ab_31',        'prop_ab_31');
+
+
+parfor package_id   = range_packages
+
+   package          = packages{package_id};
+
+   for smoothing_id = range_smoothings
+
+      smoothing          = smoothings(smoothing_id);
+
+      for study_id       = 1:10
+
+         study           = studies_parameters.study{study_id};
+         abbr            = studies_parameters.abbr{study_id};
+         no_subjects     = studies_parameters.n(study_id);
+         subject_1       = ['sub-' abbr '0001'];
+         %-loading one mask, only to check the size
+         data            = load([path_output study '/' package '/smoothing_' num2str(smoothing) '/exper_design_' exper_designs_dist{1} '/HRF_' HRF_model '/' subject_1 '/standardized_stats/cluster_binary_MNI.mat']);
+         dims            = size(data.cluster_binary_MNI);
+         sp_dist_joint   = zeros(length(exper_designs_dist)*dims(1), dims(2), dims(3));
+
+         for exper_design_id = 1:length(exper_designs_dist)
+
+            exper_design = exper_designs_dist{exper_design_id};
+            sp_dist      = zeros(dims);
+            %-number of subjects without full output (some rare BMMR runs, only SPM/FAST)
+            no_wo_output = 0;
+
+            for subject_id = 1:no_subjects
+
+               subject                     = ['sub-' abbr repmat('0', 1, 4-length(num2str(subject_id))) num2str(subject_id)];
+               cluster_binary_MNI_location = [path_output study '/' package '/smoothing_' num2str(smoothing) '/exper_design_' exper_design '/HRF_' HRF_model '/' subject '/standardized_stats/cluster_binary_MNI.mat'];
+
+               if exist(cluster_binary_MNI_location, 'file') == 2
+                  data     = load(cluster_binary_MNI_location);
+                  sp_dist  = sp_dist + data.cluster_binary_MNI;
+               elseif strcmp(study, 'BMMR_checkerboard')
+                  disp(['little output, probably the omnibus contrast from SPM/FAST did not return any voxels for BMMR! subject ' subject]);
+                  no_wo_output = no_wo_output + 1;
+               %-for subjects 25 and 27 in 'NKI_release_3_RS_1400' no 'sp_dist's for 3 combinations of smoothing and experimental design (numerical problems), if no 'sp_dists' in a different case, say!
+               elseif ~(strcmp(study, 'NKI_release_3_RS_1400')==1 && (subject_id==25 || subject_id==27))
+                  disp('problems with sp_dists!')
+               end
+
+            end
+
+            sp_dist = rot90(sp_dist, 2);
+            sp_dist_joint((exper_design_id-1)*dims(1)+1:exper_design_id*dims(1), :, :) = sp_dist/(no_subjects-no_wo_output)*100;
+
+         end
+
+         %-trick to save within parfor
+         parsave2(['combined_results/sp_dist_joint_' package '_' num2str(smoothing) '_' study '.mat'], sp_dist_joint);
+
+      end
+
+   end
+
+end
