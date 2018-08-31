@@ -662,7 +662,7 @@ for part = 1:2
    xlim([0.8 pos_x_axis+1.2]);
    ylim([0 80]);
    hx = xlabel({' ', 'Dataset'},  'Units', 'normalized');
-   hy = ylabel('Avg. % of sig voxels', 'Units', 'normalized');
+   hy = ylabel('% of significant voxels', 'Units', 'normalized');
    if part == 1
       htitle  = title('Group results for a random effects model', 'interpreter', 'none');
    else
