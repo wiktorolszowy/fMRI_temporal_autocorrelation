@@ -6,7 +6,7 @@
 %%%%   It was performed only for the 'CRIC checkerboard' and 'CamCAN' datasets, only for
 %%%%   smoothing of 8 mm and only for the true designs.
 %%%%   Written by:    Wiktor Olszowy, University of Cambridge
-%%%%   Contact:       wo222@cam.ac.uk
+%%%%   Contact:       olszowyw@gmail.com
 %%%%   Created:       February 2017 - August 2018
 %%%%   Adapted from:  https://github.com/wanderine/ParametricMultisubjectfMRI/tree/master/SPM
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -87,7 +87,7 @@ for autocorr_option_id = 1:length(autocorr_options)
       spm_jobman('run', jobs);
 
       %-slice timing correction
-      %-page 248 of https://www.fil.ion.ucl.ac.uk/spm/doc/spm12_manual.pdf
+      %-page 250 of https://www.fil.ion.ucl.ac.uk/spm/doc/spm12_manual.pdf
       clear jobs;
       if strcmp(study, 'CRIC_checkerboard')
          nslices                              = 32;

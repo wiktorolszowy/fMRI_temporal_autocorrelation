@@ -7,7 +7,7 @@
 ####   It was performed only for the 'CRIC checkerboard' and 'CamCAN' datasets, only for
 ####   smoothing of 8 mm and only for the true designs.
 ####   Written by:    Wiktor Olszowy, University of Cambridge
-####   Contact:       wo222@cam.ac.uk
+####   Contact:       olszowyw@gmail.com
 ####   Created:       October 2017 - August 2018
 ###############################################################################################
 

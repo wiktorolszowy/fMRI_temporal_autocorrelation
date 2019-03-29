@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%   Combining results from single runs to 'mat' files. Necessary for making figures.
 %%%%   Written by:  Wiktor Olszowy, University of Cambridge
-%%%%   Contact:     wo222@cam.ac.uk
+%%%%   Contact:     olszowyw@gmail.com
 %%%%   Created:     July 2017 - August 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

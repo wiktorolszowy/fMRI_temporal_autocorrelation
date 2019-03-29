@@ -1,8 +1,8 @@
 function plot_power_spectra_of_GLM_residuals(path_to_results, TR, cutoff_freq, assumed_exper_freq, true_exper_freq)
 
-   %-By Wiktor Olszowy, University of Cambridge, wo222@cam.ac.uk
+   %-By Wiktor Olszowy, University of Cambridge, olszowyw@gmail.com
    %-Written following study 'Accurate autocorrelation modeling substantially improves fMRI reliability'
-   %-https://arxiv.org/abs/1711.09877
+   %-https://www.nature.com/articles/s41467-019-09230-w.pdf
    %-May 2018
    %-Given fMRI task results in AFNI, FSL or SPM, this script plots power spectra of GLM residuals.
    %-If there is strong structure visible in the GLM residuals (the power spectra are not flat), the first level results are likely confounded.
@@ -131,10 +131,7 @@ function plot_power_spectra_of_GLM_residuals(path_to_results, TR, cutoff_freq, a
       end
 
    figname = 'power_spectra_of_GLM_residuals';
-   print (figname, '-dsvg');
-   system(['rsvg-convert -f pdf -o ' figname '.pdf ' figname '.svg']);
-   system(['rm '                     figname '.svg']);
-   system(['pdfcrop '                figname '.pdf ' figname '.pdf']);
+   print (figname, '-dpng');
 
    cd(initial_path);
 

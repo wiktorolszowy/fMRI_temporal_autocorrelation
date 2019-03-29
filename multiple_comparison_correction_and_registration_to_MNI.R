@@ -4,7 +4,7 @@
 ####   Performing multiple comparison correction via FSL and registering results to MNI space
 ####   via FSL. For statistic maps generated in AFNI, FSL and SPM.
 ####   Written by:    Wiktor Olszowy, University of Cambridge
-####   Contact:       wo222@cam.ac.uk
+####   Contact:       olszowyw@gmail.com
 ####   Created:       October 2017 - August 2018
 ###############################################################################################
 
@@ -137,6 +137,7 @@ for (package in packages) {
                system(paste0("cp ", path, "/zstat1_FSL_masked.nii.gz ", path, "/zstat1_FSL_SPM_masked.nii.gz"))
                system(paste0("cp ", path, "/res4d_FSL_masked.nii.gz  ", path, "/res4d_FSL_SPM_masked.nii.gz"))
             }
+
          } else if (package=="FSL") {
 
             #-copying the z-statistic map

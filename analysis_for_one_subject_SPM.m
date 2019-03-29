@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%   SPM analysis for 1 fMRI scan, for different combinations of options.
 %%%%   Written by:    Wiktor Olszowy, University of Cambridge
-%%%%   Contact:       wo222@cam.ac.uk
+%%%%   Contact:       olszowyw@gmail.com
 %%%%   Created:       February 2017 - August 2018
 %%%%   Adapted from:  https://github.com/wanderine/ParametricMultisubjectfMRI/tree/master/SPM
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -183,8 +183,8 @@ for autocorr_option_id = 1:length(autocorr_options)
 
             try
 
-               jobs{1}.stats{3}.con.spmmat                 = cellstr(filename_mat);
-               jobs{1}.stats{3}.con.consess{1}.tcon        = struct('name', 'task1 > rest', 'convec', 1, 'sessrep', 'none');
+               jobs{1}.stats{3}.con.spmmat          = cellstr(filename_mat);
+               jobs{1}.stats{3}.con.consess{1}.tcon = struct('name', 'task1 > rest', 'convec', 1, 'sessrep', 'none');
                %jobs{1}.stats{4}.results.spmmat             = cellstr(filename_mat);
                %jobs{1}.stats{4}.results.conspec.contrasts  = 1;
                %jobs{1}.stats{4}.results.conspec.threshdesc = 'none';

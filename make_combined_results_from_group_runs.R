@@ -3,7 +3,7 @@
 ###############################################################################################
 ####   Combining results from group analyses.
 ####   Written by:  Wiktor Olszowy, University of Cambridge
-####   Contact:     wo222@cam.ac.uk
+####   Contact:     olszowyw@gmail.com
 ####   Created:     August 2018
 ###############################################################################################
 
@@ -82,7 +82,7 @@ for (group_type_id in 1:length(group_types)) {
                next
             end
 
-            path = paste0("/home/wo222/scratch/fMRI_method_validations/modelling_autocorr/analysis_output_", study, "/", package, "/smoothing_", smoothing, "/exper_design_", exper_design, "/HRF_gamma2_D")
+            path = paste0(path_scratch, "/analysis_output_", study, "/", package, "/smoothing_", smoothing, "/exper_design_", exper_design, "/HRF_gamma2_D")
             setwd(path)
 
             if (file.exists(paste0("group_analysis_", group_type, "_effects"))) {

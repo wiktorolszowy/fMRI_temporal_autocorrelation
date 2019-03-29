@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%   Figures comparing pre-whitening in AFNI/FSL/SPM.
 %%%%   Written by:  Wiktor Olszowy, University of Cambridge
-%%%%   Contact:     wo222@cam.ac.uk
+%%%%   Contact:     olszowyw@gmail.com
 %%%%   Created:     September 2016 - August 2018
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -94,7 +94,6 @@ for smoothing_id = range_smoothings
       else
          study_id_plot = study_id_plot + 1;
          subplot(nrows, 2, study_id_plot);
-         %-the following 2 is arbitrarily chosen, does not change anything
          sd     = sqrt(0.05*0.95/no_subjects)*1.96*100;
          %-'100*' as percentages are used
          y_axes = 100*reshape(pos_rates(1:length(packages), study_id, smoothing_id, range_exper_designs), [4, length(range_exper_designs)]);
@@ -664,9 +663,9 @@ for part = 1:2
    hx = xlabel({' ', 'Dataset'},  'Units', 'normalized');
    hy = ylabel('% of significant voxels', 'Units', 'normalized');
    if part == 1
-      htitle  = title('Group results for a random effects model', 'interpreter', 'none');
+      htitle  = title('Group results for a summary statistic model', 'interpreter', 'none');
    else
-      htitle  = title('Group results for a mixed effects model',  'interpreter', 'none');
+      htitle  = title('Group results for a mixed effects model',     'interpreter', 'none');
    end
    %-controlling distance between y axis title and y axis
    hy_pos    = get(hy, 'Position');

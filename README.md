@@ -1,10 +1,10 @@
 
 | Written by: | Wiktor Olszowy, Department of Clinical Neurosciences, University of Cambridge     |
 | ----------- | --------------------------------------------------------------------------------- |
-| When:       | September 2016 - August 2018                                                      |
+| When:       | September 2016 - March 2019                                                       |
 | Purpose:    | Study "Accurate autocorrelation modeling substantially improves fMRI reliability" |
-| Preprint:   | https://www.biorxiv.org/content/early/2018/05/16/323154                           |
-| Contact:    | wo222@cam.ac.uk                                                                   |
+| Preprint:   | https://www.nature.com/articles/s41467-019-09230-w.pdf                            |
+| Contact:    | olszowyw@gmail.com                                                                |
 
 Repeat the analyses
 ==============
@@ -31,17 +31,24 @@ The simulated scans can be made using the attached script 'simulate_4D.R'.
 The order in which the scripts should be run:
 ```
 matlab -r -nodesktop "run('make_folders.m'); exit"
+
 R -e "source('make_experimental_designs.R')"
 R -e "source('make_parallel_commands.R')"
+
 part=1; sbatch --array=1-980 slurm_submit.array.hphi; sleep 60  #-for AFNI
 part=2; sbatch --array=1-980 slurm_submit.array.hphi; sleep 60  #-for FSL
 part=3; sbatch --array=1-980 slurm_submit.array.hphi; sleep 60  #-for SPM
 part=4; sbatch --array=1-980 slurm_submit.array.hphi; sleep 60  #-for post-stats
+
 matlab -r -nodesktop "run('make_power_spectra.m'); exit"
 matlab -r -nodesktop "run('make_combined_results_from_single_runs.m'); exit"
+
 R -e "source('make_group_analyses_mixed_effects.R')"
+
 matlab -r -nodesktop "run('make_group_analyses_random_effects.m'); exit"
+
 R -e "source('make_combined_results_from_group_runs.R')"
+
 matlab -r -nodesktop "run('make_figures.m'); exit"
 ```
 

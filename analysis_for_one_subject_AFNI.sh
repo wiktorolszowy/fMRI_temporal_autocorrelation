@@ -3,7 +3,7 @@
 ###############################################################################################
 ####   AFNI analysis for 1 fMRI scan, for different combinations of options.
 ####   Written by:    Wiktor Olszowy, University of Cambridge
-####   Contact:       wo222@cam.ac.uk
+####   Contact:       olszowyw@gmail.com
 ####   Created:       February 2017 - August 2018
 ####   Adapted from:  https://github.com/wanderine/ParametricMultisubjectfMRI/tree/master/AFNI
 ###############################################################################################

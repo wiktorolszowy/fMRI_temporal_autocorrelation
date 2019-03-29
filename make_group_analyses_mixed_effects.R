@@ -4,7 +4,7 @@
 ####   Aim: investigate if pre-whitening affects group level analyses when using a mixed
 ####   effects model (via AFNI).
 ####   Written by:    Wiktor Olszowy, University of Cambridge
-####   Contact:       wo222@cam.ac.uk
+####   Contact:       olszowyw@gmail.com
 ####   Created:       August 2018
 ####   Adapted from:  https://github.com/wanderine/ParametricMultisubjectfMRI/blob/master/AFNI/run_random_group_analyses_onesamplettest_MEMA_groupsize20.sh
 ###############################################################################################

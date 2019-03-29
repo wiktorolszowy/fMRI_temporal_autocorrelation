@@ -4,7 +4,7 @@
 %%%%   Aim: investigate if pre-whitening affects group level analyses when using a random
 %%%%   effects model (via SPM).
 %%%%   Written by:    Wiktor Olszowy, University of Cambridge
-%%%%   Contact:       wo222@cam.ac.uk
+%%%%   Contact:       olszowyw@gmail.com
 %%%%   Created:       May 2018 - August 2018
 %%%%   Adapted from:  https://github.com/wanderine/ParametricMultisubjectfMRI/blob/master/SPM/run_random_group_analyses_onesamplettest_1.m
 %%%%                  http://www.fil.ion.ucl.ac.uk/spm/data/face_rfx/

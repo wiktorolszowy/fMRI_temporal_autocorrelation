@@ -3,7 +3,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%   Calculating power spectra on GLM residuals from AFNI/FSL/SPM.
 %%%%   Written by:    Wiktor Olszowy, University of Cambridge
-%%%%   Contact:       wo222@cam.ac.uk
+%%%%   Contact:       olszowyw@gmail.com
 %%%%   Created:       December 2017 - August 2018
 %%%%   Adapted from:  https://github.com/wanderine/ParametricSinglesubjectfMRI/blob/master/FSL/fsl_powerspectra.m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
