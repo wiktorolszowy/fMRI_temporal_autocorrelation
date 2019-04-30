@@ -45,16 +45,17 @@ function plot_power_spectra_of_GLM_residuals(path_to_results, TR, cutoff_freq, a
       SPM_res4d_name   = dir('Res_*.nii');
       SPM_res4d_all    = '';
       
+      %-in case we get a crash, we rely on SPM functions
       try
-          for i            = 1:length(SPM_res4d_name)
-              SPM_res4d_all = [SPM_res4d_all ' ' SPM_res4d_name(i).name];
-          end
-          system(['fslmerge -t res4d ' SPM_res4d_all]);
-          res4d            = niftiread('res4d.nii.gz');
-      catch % in case we get a crash we rely on spm function
-          SPM_res4d_all = char({SPM_res4d_name.name}');
-          spm_file_merge(SPM_res4d_all, 'res4d.nii');
-          res4d = spm_read_vols(spm_vol('res4d.nii'));
+         for i             = 1:length(SPM_res4d_name)
+            SPM_res4d_all  = [SPM_res4d_all ' ' SPM_res4d_name(i).name];
+         end
+         system(['fslmerge -t res4d ' SPM_res4d_all]);
+         res4d             = niftiread('res4d.nii.gz');
+      catch
+         SPM_res4d_all     = char({SPM_res4d_name.name}');
+         spm_file_merge(SPM_res4d_all, 'res4d.nii');
+         res4d             = spm_read_vols(spm_vol('res4d.nii'));
       end
       
    else
