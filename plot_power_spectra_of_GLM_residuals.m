@@ -41,13 +41,22 @@ function plot_power_spectra_of_GLM_residuals(path_to_results, TR, cutoff_freq, a
 
    %-for SPM
    elseif exist('Res_0001.nii',       'file') == 2
+       
       SPM_res4d_name   = dir('Res_*.nii');
       SPM_res4d_all    = '';
-      for i            = 1:length(SPM_res4d_name)
-         SPM_res4d_all = [SPM_res4d_all ' ' SPM_res4d_name(i).name];
+      
+      try
+          for i            = 1:length(SPM_res4d_name)
+              SPM_res4d_all = [SPM_res4d_all ' ' SPM_res4d_name(i).name];
+          end
+          system(['fslmerge -t res4d ' SPM_res4d_all]);
+          res4d            = niftiread('res4d.nii.gz');
+      catch % in case we get a crash we rely on spm function
+          SPM_res4d_all = char({SPM_res4d_name.name}');
+          spm_file_merge(SPM_res4d_all, 'res4d.nii');
+          res4d = spm_read_vols(spm_vol('res4d.nii'));
       end
-      system(['fslmerge -t res4d ' SPM_res4d_all]);
-      res4d            = niftiread('res4d.nii.gz');
+      
    else
 
       disp('No GLM residuals found! If you run SPM, remember to put command VRes = spm_write_residuals(SPM, NaN) at the end of the SPM script. Otherwise, SPM by default deletes the GLM residuals.');
